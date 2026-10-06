@@ -2,12 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 const Customer = require("../models/Customer");
+const { authMiddleware } = require("../middleware/auth");
 
 // ===============================
 // ADD NEW CUSTOMER
 // ===============================
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
 
     try {
 
@@ -36,7 +37,7 @@ router.post("/", async (req, res) => {
 // GET ALL CUSTOMERS
 // ===============================
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
 
     try {
 
@@ -64,7 +65,7 @@ router.get("/", async (req, res) => {
 // UPDATE CUSTOMER
 // ===============================
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
 
     try {
 
@@ -107,7 +108,7 @@ router.put("/:id", async (req, res) => {
 // DELETE CUSTOMER
 // ===============================
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
 
     try {
 

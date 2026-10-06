@@ -2,16 +2,20 @@ const express = require("express");
 const router = express.Router();
 
 const Order = require("../models/Order");
+const { authMiddleware } = require("../middleware/auth");
 
 // ===============================
 // ADD NEW ORDER
 // ===============================
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
 
     try {
 
-        const order = new Order(req.body);
+        const order = new Order({
+            ...req.body,
+            createdBy: req.user.userId
+        });
 
         const savedOrder = await order.save();
 
@@ -37,13 +41,18 @@ router.post("/", async (req, res) => {
 // GET ALL ORDERS
 // ===============================
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
 
     try {
 
+        const filter = req.user.role === "admin"
+            ? {}
+            : { $or: [{ createdBy: req.user.userId }, { createdBy: { $exists: false } }] };
+
         const orders = await Order
-            .find()
+            .find(filter)
             .populate("customer")
+            .populate("createdBy", "name email role")
             .sort({ createdAt: -1 });
 
         res.json({
@@ -67,12 +76,16 @@ router.get("/", async (req, res) => {
 // UPDATE ORDER
 // ===============================
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
 
     try {
 
-        const updatedOrder = await Order.findByIdAndUpdate(
-            req.params.id,
+        const filter = req.user.role === "admin"
+            ? { _id: req.params.id }
+            : { _id: req.params.id, $or: [{ createdBy: req.user.userId }, { createdBy: { $exists: false } }] };
+
+        const updatedOrder = await Order.findOneAndUpdate(
+            filter,
             req.body,
             {
                 new: true,
@@ -111,12 +124,16 @@ router.put("/:id", async (req, res) => {
 // DELETE ORDER
 // ===============================
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
 
     try {
 
+        const filter = req.user.role === "admin"
+            ? { _id: req.params.id }
+            : { _id: req.params.id, $or: [{ createdBy: req.user.userId }, { createdBy: { $exists: false } }] };
+
         const deletedOrder =
-            await Order.findByIdAndDelete(req.params.id);
+            await Order.findOneAndDelete(filter);
 
         if (!deletedOrder) {
 

@@ -1046,3 +1046,51 @@ section {
     }
 
 }
+
+/* ==========================================
+   DASHBOARD FOLLOW-UPS & STAFF PERFORMANCE
+========================================== */
+.followup-row,
+.staff-performance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 14px 0;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.followup-row:last-child,
+.staff-performance-row:last-child {
+    border-bottom: 0;
+}
+
+.followup-row > div:first-child,
+.staff-performance-row > div:first-child {
+    min-width: 0;
+}
+
+.followup-row strong,
+.staff-performance-row strong {
+    display: block;
+    color: #142231;
+}
+
+.followup-row span,
+.staff-performance-row span {
+    display: block;
+    margin-top: 4px;
+    color: #718096;
+    font-size: 12px;
+}
+
+.followup-row.overdue strong:last-child {
+    color: #c53030;
+}
+
+@media (max-width: 650px) {
+    .followup-row,
+    .staff-performance-row {
+        align-items: flex-start;
+    }
+}

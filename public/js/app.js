@@ -1,3 +1,18 @@
+// ==========================================
+// AUTHENTICATED API HELPER
+// ==========================================
+
+function apiFetch(url, options = {}) {
+    const token = localStorage.getItem("crmToken");
+    const headers = new Headers(options.headers || {});
+
+    if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return fetch(url, { ...options, headers });
+}
+
 const leadForm = document.getElementById("leadForm");
 
 
@@ -692,7 +707,7 @@ async function loadCustomers() {
 
     try {
 
-        const response = await fetch("/api/customers");
+        const response = await apiFetch("/api/customers");
 
         const data = await response.json();
 
@@ -808,7 +823,7 @@ if (customerForm) {
 
         try {
 
-            const response = await fetch("/api/customers", {
+            const response = await apiFetch("/api/customers", {
 
                 method: "POST",
 
@@ -875,7 +890,7 @@ async function deleteCustomer(id) {
 
     try {
 
-        const response = await fetch(`/api/customers/${id}`, {
+        const response = await apiFetch(`/api/customers/${id}`, {
             method: "DELETE"
         });
 
@@ -998,7 +1013,7 @@ async function loadCustomerForEdit(id) {
 
     try {
 
-        const response = await fetch("/api/customers");
+        const response = await apiFetch("/api/customers");
 
         const data = await response.json();
 
@@ -1098,7 +1113,7 @@ async function loadCustomersForOrder() {
 
     try {
 
-        const response = await fetch("/api/customers");
+        const response = await apiFetch("/api/customers");
 
         const data = await response.json();
 
@@ -1172,7 +1187,7 @@ if (orderForm) {
 
         try {
 
-            const response = await fetch("/api/orders", {
+            const response = await apiFetch("/api/orders", {
 
                 method: "POST",
 
@@ -1226,7 +1241,7 @@ async function loadOrders() {
 
     try {
 
-        const response = await fetch("/api/orders");
+        const response = await apiFetch("/api/orders");
 
         const data = await response.json();
 
@@ -1357,7 +1372,7 @@ async function deleteOrder(id) {
 
     try {
 
-        const response = await fetch(`/api/orders/${id}`, {
+        const response = await apiFetch(`/api/orders/${id}`, {
             method: "DELETE"
         });
 
@@ -1496,8 +1511,8 @@ async function loadOrderForEdit(id) {
 
         const [ordersResponse, customersResponse] =
             await Promise.all([
-                fetch("/api/orders"),
-                fetch("/api/customers")
+                apiFetch("/api/orders"),
+                apiFetch("/api/customers")
             ]);
 
         const ordersData = await ordersResponse.json();
@@ -1722,8 +1737,8 @@ async function loadCRMStats() {
     try {
 
         const [customersResponse, ordersResponse] = await Promise.all([
-            fetch("/api/customers"),
-            fetch("/api/orders")
+            apiFetch("/api/customers"),
+            apiFetch("/api/orders")
         ]);
 
         const customersData = await customersResponse.json();
@@ -1802,7 +1817,7 @@ async function loadBusinessAnalytics() {
                     }
                 }),
 
-                fetch("/api/orders")
+                apiFetch("/api/orders")
 
             ]);
 
@@ -2660,3 +2675,97 @@ if (analyticsChart) {
 
 
 
+
+
+// ==========================================
+// ENHANCED DASHBOARD
+// ==========================================
+
+async function loadEnhancedDashboard() {
+    const dashboardRoot = document.getElementById("totalLeads");
+    if (!dashboardRoot) return;
+
+    const token = localStorage.getItem("crmToken");
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const year = document.getElementById("dashboardYear")?.value || new Date().getFullYear();
+    const month = document.getElementById("dashboardMonth")?.value ?? "all";
+
+    try {
+        const response = await apiFetch(`/api/dashboard?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`);
+        const data = await response.json();
+        if (!data.success) return;
+
+        const s = data.stats;
+        const values = {
+            totalLeads: s.totalLeads,
+            newLeads: s.newLeads,
+            contactedLeads: s.contactedLeads,
+            interestedLeads: s.interestedLeads,
+            followUpLeads: s.followUpLeads,
+            convertedLeads: s.convertedLeads,
+            lostLeads: s.lostLeads,
+            totalCustomers: s.totalCustomers,
+            totalOrders: s.totalOrders,
+            totalSales: "₹" + Number(s.totalSales || 0).toLocaleString("en-IN"),
+            pendingPayments: "₹" + Number(s.pendingPayments || 0).toLocaleString("en-IN")
+        };
+
+        Object.entries(values).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        });
+
+        const followUpBox = document.getElementById("dashboardFollowUps");
+        if (followUpBox) {
+            if (!data.followUps.length) {
+                followUpBox.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><h3>No upcoming follow-ups</h3><p>No follow-ups are due in the next 14 days.</p></div>`;
+            } else {
+                followUpBox.innerHTML = data.followUps.map(lead => {
+                    const d = new Date(lead.followUpDate);
+                    const overdue = d < new Date(new Date().setHours(0,0,0,0));
+                    return `<div class="followup-row ${overdue ? "overdue" : ""}">
+                        <div><strong>${lead.name}</strong><span>${lead.phone} • ${lead.product || "No product"}</span></div>
+                        <div><strong>${d.toLocaleDateString("en-IN", {day:"2-digit", month:"short"})}</strong><span>${overdue ? "Overdue" : lead.status}</span></div>
+                    </div>`;
+                }).join("");
+            }
+        }
+
+        const staffBox = document.getElementById("dashboardStaffPerformance");
+        if (staffBox) {
+            if (data.staffPerformance.length) {
+                staffBox.innerHTML = `<div class="staff-performance-list">${data.staffPerformance.map(staff => `
+                    <div class="staff-performance-row">
+                        <div><strong>${staff.name}</strong><span>${staff.leads} leads • ${staff.converted} converted • ${staff.followUps} follow-ups</span></div>
+                        <strong>₹${Number(staff.sales || 0).toLocaleString("en-IN")}</strong>
+                    </div>`).join("")}</div>`;
+            } else if (JSON.parse(localStorage.getItem("crmUser") || "{}")?.role === "admin") {
+                staffBox.innerHTML = `<div class="empty-state"><div class="empty-icon">👨‍💼</div><h3>No staff members yet</h3><p>Create staff accounts to start tracking team performance.</p></div>`;
+            } else {
+                staffBox.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><h3>Your performance</h3><p>Your personal lead and sales activity is shown in the dashboard.</p></div>`;
+            }
+        }
+
+        const user = JSON.parse(localStorage.getItem("crmUser") || "null");
+        if (user) {
+            const name = document.querySelector(".staff-box strong");
+            const role = document.querySelector(".staff-box small");
+            const avatar = document.querySelector(".staff-avatar");
+            if (name) name.innerText = user.name || "User";
+            if (role) role.innerText = user.role === "admin" ? "Administrator" : "Staff";
+            if (avatar) avatar.innerText = (user.name || "U").charAt(0).toUpperCase();
+        }
+    } catch (error) {
+        console.error("Enhanced Dashboard Error:", error);
+    }
+}
+
+const enhancedDashboardYear = document.getElementById("dashboardYear");
+const enhancedDashboardMonth = document.getElementById("dashboardMonth");
+if (enhancedDashboardYear) enhancedDashboardYear.addEventListener("change", loadEnhancedDashboard);
+if (enhancedDashboardMonth) enhancedDashboardMonth.addEventListener("change", loadEnhancedDashboard);
+if (document.getElementById("totalLeads")) loadEnhancedDashboard();

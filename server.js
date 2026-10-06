@@ -17,7 +17,8 @@ const customerRoutes = require("./routes/customers");
 // console.log("Customer Routes:", typeof customerRoutes);
 const orderRoutes = require("./routes/orders");
 const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/users"); 
+const userRoutes = require("./routes/users");
+const dashboardRoutes = require("./routes/dashboard"); 
 
 
 // ===============================
@@ -48,6 +49,7 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 
 // ===============================
