@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Strength Physio CRM - Staff</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+    <div class="crm-layout">
+
+        <!-- =========================
+             SIDEBAR
+        ========================== -->
+
+        <aside class="crm-sidebar">
+
+            <div class="crm-logo">
+
+                <div class="logo-icon">
+                    SP
+                </div>
+
+                <div>
+                    <h2>Strength Physio</h2>
+                    <span>CRM System</span>
+                </div>
+
+            </div>
+
+
+            <div class="sidebar-section">
+
+                <p class="sidebar-title">
+                    MAIN
+                </p>
+
+                <a href="dashboard.html" class="sidebar-link">
+                    📊
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="leads.html" class="sidebar-link">
+                    👥
+                    <span>Leads</span>
+                </a>
+
+                <a href="customers.html" class="sidebar-link">
+                    🧑
+                    <span>Customers</span>
+                </a>
+
+                <a href="orders.html" class="sidebar-link">
+                    📦
+                    <span>Orders</span>
+                </a>
+
+            </div>
+
+
+            <div class="sidebar-section">
+
+                <p class="sidebar-title">
+                    MANAGEMENT
+                </p>
+
+                <a href="#" class="sidebar-link">
+                    📅
+                    <span>Follow-ups</span>
+                </a>
+
+                <a href="#" class="sidebar-link">
+                    📈
+                    <span>Reports</span>
+                </a>
+
+                <a href="staff.html" class="sidebar-link active">
+                    👨‍💼
+                    <span>Staff</span>
+                </a>
+
+            </div>
+
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="sidebar-link">
+                    ⚙️
+                    <span>Settings</span>
+                </a>
+
+                <a href="login.html" class="sidebar-link">
+                    🚪
+                    <span>Logout</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             MAIN CONTENT
+        ========================== -->
+
+        <main class="crm-main">
+
+            <header class="crm-header">
+
+                <div>
+
+                    <p class="welcome-text">
+                        Team Management
+                    </p>
+
+                    <h1>Staff Management</h1>
+
+                    <p class="dashboard-subtitle">
+                        Manage your CRM staff and team accounts.
+                    </p>
+
+                </div>
+
+
+                <div class="header-right">
+
+                    <div class="staff-box">
+
+                        <div class="staff-avatar">
+                            A
+                        </div>
+
+                        <div>
+
+                            <strong>Admin</strong>
+
+                            <small>
+                                Administrator
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =========================
+                 ADD STAFF
+            ========================== -->
+
+            <div class="dashboard-panel staff-form-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Add New Staff
+                        </h2>
+
+                        <p>
+                            Create a new staff account.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="staffForm" class="staff-form">
+
+                    <div class="form-grid">
+
+                        <div>
+
+                            <label>
+                                Staff Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="staffName"
+                                placeholder="Enter staff name"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Email Address
+                            </label>
+
+                            <input
+                                type="email"
+                                id="staffEmail"
+                                placeholder="staff@example.com"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Password
+                            </label>
+
+                            <input
+                                type="password"
+                                id="staffPassword"
+                                placeholder="Create password"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Role
+                            </label>
+
+                            <select id="staffRole">
+
+                                <option value="staff">
+                                    Staff
+                                </option>
+
+                                <option value="admin">
+                                    Admin
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit">
+                        + Create Staff
+                    </button>
+
+                </form>
+
+
+                <p id="staffMessage"></p>
+
+            </div>
+
+
+            <!-- =========================
+                 STAFF LIST
+            ========================== -->
+
+            <div class="dashboard-panel staff-list-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Team Members
+                        </h2>
+
+                        <p>
+                            All registered CRM users.
+                        </p>
+
+                    </div>
+
+                    <span id="staffCount">
+                        0 Members
+                    </span>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Name
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th>
+                                    Joined
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="staffTable">
+
+                            <tr>
+
+                                <td colspan="5">
+                                    Loading staff...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script src="js/staff.js"></script>
+
+</body>
+
+</html>
