@@ -39,6 +39,19 @@ router.get("/", authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 
+// STAFF LIST (ADMIN + STAFF)
+router.get("/staff", authMiddleware, async (req, res) => {
+    try {
+        const users = await User.find({ role: "staff" })
+            .select("name email role")
+            .sort({ name: 1 });
+        res.json({ success: true, users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
 // ===============================
 // CREATE STAFF
 // ===============================

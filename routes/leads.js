@@ -1,314 +1,150 @@
 const express = require("express");
 const router = express.Router();
-
 const Lead = require("../models/Lead");
+const User = require("../models/User");
+const { authMiddleware, adminMiddleware } = require("../middleware/auth");
 
-const {
-  authMiddleware
-} = require("../middleware/auth");
-
-
-// ==========================================
-// ADD NEW LEAD
-// ==========================================
-
+// ADD LEAD
 router.post("/", authMiddleware, async (req, res) => {
-
   try {
+    let assignedTo = req.user.userId;
+
+    if (req.user.role === "admin" && req.body.assignedTo) {
+      const staff = await User.findOne({ _id: req.body.assignedTo, role: "staff" });
+      if (!staff) return res.status(400).json({ success: false, message: "Selected staff member not found" });
+      assignedTo = staff._id;
+    }
 
     const lead = new Lead({
-
       name: req.body.name,
-
       phone: req.body.phone,
-
       email: req.body.email,
-
       product: req.body.product,
-
       source: req.body.source,
-
       status: req.body.status,
-
       followUpDate: req.body.followUpDate,
-
       notes: req.body.notes,
-
-      // Logged-in user automatically becomes owner
-      createdBy: req.user.userId
-
+      createdBy: req.user.userId,
+      assignedTo,
+      assignedAt: new Date()
     });
-
 
     const savedLead = await lead.save();
+    const populated = await Lead.findById(savedLead._id)
+      .populate("createdBy", "name email role")
+      .populate("assignedTo", "name email role");
 
-
-    res.status(201).json({
-
-      success: true,
-
-      message: "Lead added successfully",
-
-      lead: savedLead
-
-    });
-
-
+    res.status(201).json({ success: true, message: "Lead added successfully", lead: populated });
   } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      message: error.message
-
-    });
-
+    res.status(500).json({ success: false, message: error.message });
   }
-
 });
 
-
-// ==========================================
-// GET ALL LEADS
-// ==========================================
-
+// GET LEADS
 router.get("/", authMiddleware, async (req, res) => {
-
   try {
+    const filter = req.user.role === "admin"
+      ? {}
+      : { $or: [{ assignedTo: req.user.userId }, { createdBy: req.user.userId }] };
 
-    let leads;
+    const leads = await Lead.find(filter)
+      .populate("createdBy", "name email role")
+      .populate("assignedTo", "name email role")
+      .sort({ createdAt: -1 });
 
-
-    // ======================================
-    // ADMIN → ALL LEADS
-    // ======================================
-
-    if (req.user.role === "admin") {
-
-      leads = await Lead
-        .find()
-        .populate("createdBy", "name email role")
-        .sort({ createdAt: -1 });
-
-    }
-
-
-    // ======================================
-    // STAFF → ONLY THEIR OWN LEADS
-    // ======================================
-
-    else {
-
-      leads = await Lead
-        .find({
-          createdBy: req.user.userId
-        })
-        .populate("createdBy", "name email role")
-        .sort({ createdAt: -1 });
-
-    }
-
-
-    res.json({
-
-      success: true,
-
-      leads: leads
-
-    });
-
-
+    res.json({ success: true, leads });
   } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      message: error.message
-
-    });
-
+    res.status(500).json({ success: false, message: error.message });
   }
-
 });
 
-
-// ==========================================
 // UPDATE LEAD
-// ==========================================
-
 router.put("/:id", authMiddleware, async (req, res) => {
-
   try {
+    const existing = await Lead.findById(req.params.id);
+    if (!existing) return res.status(404).json({ success: false, message: "Lead not found" });
 
-    let updatedLead;
+    const canEdit = req.user.role === "admin" ||
+      String(existing.assignedTo || existing.createdBy) === String(req.user.userId) ||
+      String(existing.createdBy) === String(req.user.userId);
 
+    if (!canEdit) return res.status(403).json({ success: false, message: "Access denied" });
 
-    // ======================================
-    // ADMIN → CAN UPDATE ANY LEAD
-    // ======================================
+    const update = {
+      name: req.body.name,
+      phone: req.body.phone,
+      email: req.body.email,
+      product: req.body.product,
+      source: req.body.source,
+      status: req.body.status,
+      followUpDate: req.body.followUpDate,
+      notes: req.body.notes
+    };
 
-    if (req.user.role === "admin") {
-
-      updatedLead = await Lead.findByIdAndUpdate(
-
-        req.params.id,
-
-        req.body,
-
-        {
-          new: true,
-          runValidators: true
-        }
-
-      );
-
+    if (req.user.role === "admin" && req.body.assignedTo !== undefined) {
+      if (!req.body.assignedTo) {
+        update.assignedTo = null;
+        update.assignedAt = null;
+      } else {
+        const staff = await User.findOne({ _id: req.body.assignedTo, role: "staff" });
+        if (!staff) return res.status(400).json({ success: false, message: "Selected staff member not found" });
+        update.assignedTo = staff._id;
+        update.assignedAt = new Date();
+      }
     }
 
+    const updatedLead = await Lead.findByIdAndUpdate(req.params.id, update, {
+      new: true,
+      runValidators: true
+    })
+      .populate("createdBy", "name email role")
+      .populate("assignedTo", "name email role");
 
-    // ======================================
-    // STAFF → CAN UPDATE ONLY THEIR LEAD
-    // ======================================
-
-    else {
-
-      updatedLead = await Lead.findOneAndUpdate(
-
-        {
-          _id: req.params.id,
-
-          createdBy: req.user.userId
-
-        },
-
-        req.body,
-
-        {
-          new: true,
-          runValidators: true
-        }
-
-      );
-
-    }
-
-
-    if (!updatedLead) {
-
-      return res.status(404).json({
-
-        success: false,
-
-        message: "Lead not found or access denied"
-
-      });
-
-    }
-
-
-    res.json({
-
-      success: true,
-
-      message: "Lead updated successfully",
-
-      lead: updatedLead
-
-    });
-
-
+    res.json({ success: true, message: "Lead updated successfully", lead: updatedLead });
   } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      message: error.message
-
-    });
-
+    res.status(500).json({ success: false, message: error.message });
   }
-
 });
 
+// ADMIN: QUICK REASSIGN
+router.patch("/:id/assign", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const staff = await User.findOne({ _id: req.body.assignedTo, role: "staff" });
+    if (!staff) return res.status(400).json({ success: false, message: "Staff member not found" });
 
-// ==========================================
+    const lead = await Lead.findByIdAndUpdate(
+      req.params.id,
+      { assignedTo: staff._id, assignedAt: new Date() },
+      { new: true }
+    )
+      .populate("createdBy", "name email role")
+      .populate("assignedTo", "name email role");
+
+    if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+    res.json({ success: true, message: `Lead assigned to ${staff.name}`, lead });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // DELETE LEAD
-// ==========================================
-
 router.delete("/:id", authMiddleware, async (req, res) => {
-
   try {
-
     let deletedLead;
-
-
-    // ======================================
-    // ADMIN → CAN DELETE ANY LEAD
-    // ======================================
-
     if (req.user.role === "admin") {
-
-      deletedLead =
-        await Lead.findByIdAndDelete(req.params.id);
-
-    }
-
-
-    // ======================================
-    // STAFF → CAN DELETE ONLY THEIR LEAD
-    // ======================================
-
-    else {
-
-      deletedLead =
-        await Lead.findOneAndDelete({
-
-          _id: req.params.id,
-
-          createdBy: req.user.userId
-
-        });
-
-    }
-
-
-    if (!deletedLead) {
-
-      return res.status(404).json({
-
-        success: false,
-
-        message: "Lead not found or access denied"
-
+      deletedLead = await Lead.findByIdAndDelete(req.params.id);
+    } else {
+      deletedLead = await Lead.findOneAndDelete({
+        _id: req.params.id,
+        $or: [{ assignedTo: req.user.userId }, { createdBy: req.user.userId }]
       });
-
     }
 
-
-    res.json({
-
-      success: true,
-
-      message: "Lead deleted successfully"
-
-    });
-
-
+    if (!deletedLead) return res.status(404).json({ success: false, message: "Lead not found or access denied" });
+    res.json({ success: true, message: "Lead deleted successfully" });
   } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      message: error.message
-
-    });
-
+    res.status(500).json({ success: false, message: error.message });
   }
-
 });
-
 
 module.exports = router;

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strength Physio CRM - Follow-ups</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1>Follow-up Center</h1>
+            <p>Track overdue, today and upcoming customer follow-ups.</p>
+        </div>
+        <a href="leads.html"><button type="button">← Back to Leads</button></a>
+    </div>
+
+    <div class="followup-grid">
+        <section class="dashboard-panel">
+            <div class="panel-header"><div><h2>Overdue</h2><p>Follow-ups that need attention.</p></div><span id="overdueCount">0</span></div>
+            <div id="overdueFollowups" class="followup-list"></div>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-header"><div><h2>Today</h2><p>Follow-ups scheduled for today.</p></div><span id="todayCount">0</span></div>
+            <div id="todayFollowups" class="followup-list"></div>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-header"><div><h2>Upcoming</h2><p>Next 14 days.</p></div><span id="upcomingCount">0</span></div>
+            <div id="upcomingFollowups" class="followup-list"></div>
+        </section>
+    </div>
+</div>
+<script src="js/app.js"></script>
+<script>
+(async function(){
+  const token=localStorage.getItem('crmToken');
+  if(!token){location.href='login.html';return;}
+  try{
+    const r=await apiFetch('/api/leads'); const d=await r.json();
+    if(!d.success) throw new Error(d.message||'Unable to load');
+    const now=new Date(); now.setHours(0,0,0,0);
+    const end=new Date(now); end.setDate(end.getDate()+14);
+    const overdue=[], today=[], upcoming=[];
+    d.leads.filter(x=>x.followUpDate && !['Converted','Lost'].includes(x.status)).forEach(x=>{
+      const dt=new Date(x.followUpDate); dt.setHours(0,0,0,0);
+      if(dt<now) overdue.push(x); else if(dt.getTime()===now.getTime()) today.push(x); else if(dt<=end) upcoming.push(x);
+    });
+    render('overdueFollowups',overdue); render('todayFollowups',today); render('upcomingFollowups',upcoming);
+    document.getElementById('overdueCount').textContent=overdue.length; document.getElementById('todayCount').textContent=today.length; document.getElementById('upcomingCount').textContent=upcoming.length;
+  }catch(e){ console.error(e); document.getElementById('overdueFollowups').innerHTML='<p>Unable to load follow-ups.</p>'; }
+})();
+function render(id,items){ const el=document.getElementById(id); if(!items.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><p>No follow-ups here.</p></div>';return;} el.innerHTML=items.map(x=>`<div class="followup-item"><div><strong>${escapeHtml(x.name)}</strong><small>${escapeHtml(x.product||'No product')} · ${x.assignedTo?escapeHtml(x.assignedTo.name):'Unassigned'}</small></div><div><span>${new Date(x.followUpDate).toLocaleDateString('en-IN')}</span><a href="tel:${x.phone}">📞</a><a href="edit-lead.html?id=${x._id}">✏️</a></div></div>`).join(''); }
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+</script>
+</body>
+</html>
