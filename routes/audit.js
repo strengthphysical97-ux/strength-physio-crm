@@ -1,0 +1,2 @@
+const express=require('express'); const router=express.Router(); const AuditLog=require('../models/AuditLog'); const {authMiddleware,adminMiddleware}=require('../middleware/auth');
+router.get('/',authMiddleware,adminMiddleware,async(req,res)=>{try{const logs=await AuditLog.find({}).populate('user','name email role').sort({createdAt:-1}).limit(Math.min(Number(req.query.limit)||100,500));res.json({success:true,logs})}catch(e){res.status(500).json({success:false,message:e.message})}}); module.exports=router;

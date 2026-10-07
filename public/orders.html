@@ -1,5 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+<<<<<<< HEAD
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strength Physio CRM - Orders</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .orders-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:20px 0}
+        .orders-summary .stat-card{padding:18px;border-radius:14px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+        .orders-summary h3{margin:0 0 8px;font-size:13px;color:#666}.orders-summary strong{font-size:22px}
+        .order-filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;margin:18px 0;padding:14px;background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+        .order-filters input,.order-filters select{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:9px;background:#fff}
+        .payment-status,.order-status{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+        .payment-status.paid{background:#e8f7ee}.payment-status.partial{background:#fff4d6}.payment-status.pending{background:#ffe8e8}
+        .order-status{background:#eef2f7}
+        @media(max-width:900px){.orders-summary{grid-template-columns:repeat(2,1fr)}.order-filters{grid-template-columns:1fr 1fr}}
+        @media(max-width:600px){.orders-summary{grid-template-columns:1fr}.order-filters{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="crm-nav">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="leads.html">👥 Leads</a>
+        <a href="customers.html">🧑 Customers</a>
+        <a href="orders.html">📦 Orders</a>
+        <a href="payments.html">💰 Payments</a>
+    </nav>
+
+    <div class="page-header">
+        <h1>Orders</h1>
+        <a href="add-order.html"><button type="button">Add Order</button></a>
+    </div>
+
+    <div class="orders-summary">
+        <div class="stat-card"><h3>Total Orders</h3><strong id="ordersCountValue">0</strong></div>
+        <div class="stat-card"><h3>Total Sale</h3><strong id="ordersTotalValue">₹0</strong></div>
+        <div class="stat-card"><h3>Total Billing</h3><strong id="ordersBillingValue">₹0</strong></div>
+        <div class="stat-card"><h3>Total Pending</h3><strong id="ordersPendingValue">₹0</strong></div>
+    </div>
+
+    <div class="order-filters">
+        <input id="orderSearch" type="search" placeholder="Search customer, phone or product">
+        <select id="orderPaymentFilter">
+            <option value="all">All Payments</option>
+            <option value="Pending">Pending</option>
+            <option value="Partial">Partial</option>
+            <option value="Paid">Paid</option>
+        </select>
+        <select id="orderStaffFilter"><option value="all">All Staff</option></select>
+        <select id="orderStatusFilter">
+            <option value="all">All Order Status</option>
+            <option value="New">New</option>
+            <option value="Processing">Processing</option>
+            <option value="Dispatched">Dispatched</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+        <input id="orderDateFilter" type="date">
+        <button id="clearOrderFilters" type="button">Clear</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th><th>Staff</th><th>Phone</th><th>Product</th><th>Qty</th><th>Price</th>
+                    <th>Total</th><th>Paid</th><th>Pending</th><th>Payment</th><th>Order Status</th><th>Order Date</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTable"><tr><td colspan="13">Loading orders...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+<script>window.ENHANCED_ORDERS = true;</script>
+<script src="js/app.js"></script>
+<script src="js/phase3-orders-enhanced.js"></script>
+</body>
+</html>
+=======
 
 <head>
 
@@ -79,3 +159,4 @@
 </body>
 
 </html>  
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128

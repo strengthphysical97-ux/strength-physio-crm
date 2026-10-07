@@ -39,11 +39,20 @@
 
         </div>
 
+<<<<<<< HEAD
+        <div class="list-toolbar">
+            <input type="text" id="searchCustomer" placeholder="Search by name, phone or company...">
+            <select id="customerStaffFilter"><option value="all">All Staff</option></select>
+            <button type="button" id="clearCustomerFilters" class="secondary-btn">Clear</button>
+        </div>
+        <div class="list-summary" id="customerSummary"></div>
+=======
         <input
             type="text"
             id="searchCustomer"
             placeholder="Search by name, phone or company..."
         >
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         <div class="table-container">
 
@@ -57,6 +66,10 @@
                         <th>Email</th>
                         <th>Company / Clinic</th>
                         <th>City</th>
+<<<<<<< HEAD
+                        <th>Staff</th>
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
                         <th>Action</th>
                     </tr>
 
@@ -65,7 +78,11 @@
                 <tbody id="customersTable">
 
                     <tr>
+<<<<<<< HEAD
+                        <td colspan="7">Loading customers...</td>
+=======
                         <td colspan="6">Loading customers...</td>
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
                     </tr>
 
                 </tbody>
@@ -77,6 +94,24 @@
     </div>
 
     <script src="js/app.js"></script>
+<<<<<<< HEAD
+<script>
+(function(){
+ const input=document.getElementById("searchCustomer"), staff=document.getElementById("customerStaffFilter"), clear=document.getElementById("clearCustomerFilters");
+ let rows=[];
+ async function init(){
+   try{ const r=await apiFetch("/api/customers"), d=await r.json(); if(!d.success) return; rows=d.customers||[];
+     const u=JSON.parse(localStorage.getItem("crmUser")||"null");
+     if(u?.role!=="admin"){ staff.style.display="none"; } else { const sr=await apiFetch("/api/users/staff"), sd=await sr.json(); if(sd.success) staff.innerHTML="<option value=\"all\">All Staff</option>"+sd.users.map(x=>`<option value="${x._id}">${x.name}</option>`).join(""); }
+     render();
+   }catch(e){console.error(e)}
+ }
+ function render(){ const q=(input.value||"").toLowerCase().trim(), sf=staff.value; const f=rows.filter(c=>(!q||[c.name,c.phone,c.email,c.company,c.city].filter(Boolean).join(" ").toLowerCase().includes(q))&&(sf==="all"||String(c.assignedTo?._id||c.assignedTo||"")===sf)); document.getElementById("customerSummary").innerHTML=`<span><b>${f.length}</b> customers shown</span>`; displayCustomers(f); }
+ input.addEventListener("input",render); staff.addEventListener("change",render); clear.addEventListener("click",()=>{input.value="";staff.value="all";render()}); init();
+})();
+</script>
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
 </body>
 

@@ -3,6 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+<title>Follow-ups — Strength Physio CRM</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="crm-layout">
+  <aside class="crm-sidebar">
+    <div class="crm-logo"><div class="logo-icon">SP</div><div><h2>Strength Physio</h2><span>CRM Command Center</span></div></div>
+    <div class="sidebar-section"><p class="sidebar-title">WORKSPACE</p>
+      <a class="sidebar-link" href="dashboard.html">⌂ <span>Dashboard</span></a>
+      <a class="sidebar-link" href="leads.html">◎ <span>Leads</span></a>
+      <a class="sidebar-link" href="customers.html">◉ <span>Customers</span></a>
+      <a class="sidebar-link" href="orders.html">▣ <span>Orders</span></a>
+    </div>
+    <div class="sidebar-section"><p class="sidebar-title">OPERATIONS</p>
+      <a class="sidebar-link active" href="followups.html">◷ <span>Follow-ups</span></a>
+      <a class="sidebar-link" href="payments.html">₹ <span>Payments</span></a>
+      <a class="sidebar-link" href="reports.html">▥ <span>Reports</span></a>
+      <a class="sidebar-link" href="staff.html">♙ <span>Staff</span></a>
+      <a class="sidebar-link" href="audit.html">◌ <span>Audit Log</span></a>
+    </div>
+    <div class="sidebar-bottom">
+      <a class="sidebar-link" href="leads.html">＋ <span>New Lead</span></a>
+      <a class="sidebar-link logout-link" href="login.html" onclick="localStorage.clear()">↪ <span>Logout</span></a>
+    </div>
+  </aside>
+
+  <main class="crm-main">
+    <header class="crm-header followups-header">
+      <div>
+        <p class="eyebrow">CUSTOMER SUCCESS</p>
+        <h1>Follow-up Center</h1>
+        <p class="dashboard-subtitle">Stay ahead of every customer conversation and never miss a follow-up.</p>
+      </div>
+      <div class="header-actions">
+        <a class="btn btn-light" href="leads.html">← Back to Leads</a>
+        <a class="btn btn-primary" href="add-lead.html">＋ New Lead</a>
+      </div>
+    </header>
+
+    <section class="followup-stats">
+      <div class="followup-stat stat-overdue"><div class="stat-icon">!</div><div><span>Overdue</span><strong id="overdueCount">0</strong><small>Needs attention</small></div></div>
+      <div class="followup-stat stat-today"><div class="stat-icon">◷</div><div><span>Today</span><strong id="todayCount">0</strong><small>Due today</small></div></div>
+      <div class="followup-stat stat-upcoming"><div class="stat-icon">→</div><div><span>Upcoming</span><strong id="upcomingCount">0</strong><small>Next 14 days</small></div></div>
+      <div class="followup-stat stat-total"><div class="stat-icon">✓</div><div><span>Active</span><strong id="activeCount">0</strong><small>Open follow-ups</small></div></div>
+    </section>
+
+    <section class="followup-toolbar panel">
+      <div class="toolbar-title"><div class="toolbar-icon">◷</div><div><h2>Follow-up Queue</h2><p>Prioritize overdue conversations first.</p></div></div>
+      <div class="followup-controls">
+        <div class="followup-search"><span>⌕</span><input id="followupSearch" type="search" placeholder="Search customer, phone or staff..."></div>
+        <button class="btn btn-light" id="refreshFollowups" type="button">↻ Refresh</button>
+      </div>
+    </section>
+
+    <div id="followupError" class="followup-error" hidden></div>
+
+    <section class="followup-grid professional-followup-grid">
+      <section class="followup-panel overdue-panel">
+        <div class="followup-panel-header"><div class="section-title"><span class="section-dot overdue-dot"></span><div><h2>Overdue</h2><p>Follow-ups that need immediate attention.</p></div></div><span id="overdueBadge" class="count-badge danger">0</span></div>
+        <div id="overdueFollowups" class="followup-list"></div>
+      </section>
+      <section class="followup-panel today-panel">
+        <div class="followup-panel-header"><div class="section-title"><span class="section-dot today-dot"></span><div><h2>Today</h2><p>Conversations scheduled for today.</p></div></div><span id="todayBadge" class="count-badge warning">0</span></div>
+        <div id="todayFollowups" class="followup-list"></div>
+      </section>
+      <section class="followup-panel upcoming-panel">
+        <div class="followup-panel-header"><div class="section-title"><span class="section-dot upcoming-dot"></span><div><h2>Upcoming</h2><p>Plan the next 14 days in advance.</p></div></div><span id="upcomingBadge" class="count-badge success">0</span></div>
+        <div id="upcomingFollowups" class="followup-list"></div>
+      </section>
+    </section>
+
+    <div class="followup-footer-note"><span>✓</span><p><strong>Tip:</strong> Keep follow-up dates updated after every customer conversation so your team always has a reliable next action.</p></div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+let allFollowups = { overdue: [], today: [], upcoming: [] };
+let followupNow = new Date();
+
+(async function loadFollowups(){
+  const token=localStorage.getItem('crmToken');
+  if(!token){location.href='login.html';return;}
+  await fetchFollowups();
+})();
+
+document.getElementById('refreshFollowups').addEventListener('click', fetchFollowups);
+document.getElementById('followupSearch').addEventListener('input', renderFiltered);
+
+async function fetchFollowups(){
+  const error=document.getElementById('followupError'); error.hidden=true;
+  try{
+    const r=await apiFetch('/api/leads'); const d=await r.json();
+    if(!d.success) throw new Error(d.message||'Unable to load follow-ups');
+    const now=new Date(); now.setHours(0,0,0,0); followupNow=now;
+=======
 <title>Strength Physio CRM - Follow-ups</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -40,17 +137,56 @@
     const r=await apiFetch('/api/leads'); const d=await r.json();
     if(!d.success) throw new Error(d.message||'Unable to load');
     const now=new Date(); now.setHours(0,0,0,0);
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     const end=new Date(now); end.setDate(end.getDate()+14);
     const overdue=[], today=[], upcoming=[];
     d.leads.filter(x=>x.followUpDate && !['Converted','Lost'].includes(x.status)).forEach(x=>{
       const dt=new Date(x.followUpDate); dt.setHours(0,0,0,0);
       if(dt<now) overdue.push(x); else if(dt.getTime()===now.getTime()) today.push(x); else if(dt<=end) upcoming.push(x);
     });
+<<<<<<< HEAD
+    overdue.sort(byDate); today.sort(byDate); upcoming.sort(byDate);
+    allFollowups={overdue,today,upcoming};
+    updateStats(); renderFiltered();
+  }catch(e){
+    console.error(e); error.hidden=false; error.textContent='Unable to load follow-ups. Please refresh and try again.';
+    ['overdueFollowups','todayFollowups','upcomingFollowups'].forEach(id=>document.getElementById(id).innerHTML=errorCard());
+  }
+}
+function byDate(a,b){return new Date(a.followUpDate)-new Date(b.followUpDate)}
+function updateStats(){
+  const overdue=allFollowups.overdue.length,today=allFollowups.today.length,upcoming=allFollowups.upcoming.length;
+  document.getElementById('overdueCount').textContent=overdue; document.getElementById('todayCount').textContent=today; document.getElementById('upcomingCount').textContent=upcoming;
+  document.getElementById('activeCount').textContent=overdue+today+upcoming;
+  document.getElementById('overdueBadge').textContent=overdue; document.getElementById('todayBadge').textContent=today; document.getElementById('upcomingBadge').textContent=upcoming;
+}
+function renderFiltered(){
+  const q=(document.getElementById('followupSearch').value||'').trim().toLowerCase();
+  const filter=items=>items.filter(x=>!q || [x.name,x.phone,x.product,x.assignedTo?.name].some(v=>String(v||'').toLowerCase().includes(q)));
+  render('overdueFollowups',filter(allFollowups.overdue),'overdue'); render('todayFollowups',filter(allFollowups.today),'today'); render('upcomingFollowups',filter(allFollowups.upcoming),'upcoming');
+}
+function render(id,items,type){
+  const el=document.getElementById(id);
+  if(!items.length){el.innerHTML=emptyCard(type);return;}
+  el.innerHTML=items.map(x=>{
+    const dt=new Date(x.followUpDate), staff=x.assignedTo?.name||'Unassigned';
+    const date=dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    return `<article class="followup-item pro-item ${type==='overdue'?'is-overdue':''}">
+      <div class="followup-main"><div class="customer-avatar">${initials(x.name)}</div><div class="customer-info"><strong>${escapeHtml(x.name||'Unnamed')}</strong><small>${escapeHtml(x.product||'General follow-up')}</small><div class="followup-meta"><span>♙ ${escapeHtml(staff)}</span>${x.phone?`<span>☎ ${escapeHtml(x.phone)}</span>`:''}</div></div></div>
+      <div class="followup-right"><span class="date-chip ${type}">${date}</span><div class="item-actions"><a class="icon-action call" href="tel:${encodeURIComponent(x.phone||'') }" title="Call customer">☎</a><a class="icon-action edit" href="edit-lead.html?id=${encodeURIComponent(x._id)}" title="Open lead">↗</a></div></div>
+    </article>`;
+  }).join('');
+}
+function initials(v){return String(v||'?').trim().split(/\s+/).slice(0,2).map(s=>s[0]).join('').toUpperCase()||'?'}
+function emptyCard(type){const map={overdue:['✓','All clear','No overdue follow-ups right now.'],today:['◷','Nothing scheduled today','Your team has no follow-ups due today.'],upcoming:['→','No upcoming follow-ups','There are no active follow-ups in the next 14 days.']};const x=map[type];return `<div class="followup-empty"><div class="empty-circle">${x[0]}</div><strong>${x[1]}</strong><p>${x[2]}</p></div>`}
+function errorCard(){return '<div class="followup-empty error-empty"><div class="empty-circle">!</div><strong>Could not load</strong><p>Please refresh the page.</p></div>'}
+=======
     render('overdueFollowups',overdue); render('todayFollowups',today); render('upcomingFollowups',upcoming);
     document.getElementById('overdueCount').textContent=overdue.length; document.getElementById('todayCount').textContent=today.length; document.getElementById('upcomingCount').textContent=upcoming.length;
   }catch(e){ console.error(e); document.getElementById('overdueFollowups').innerHTML='<p>Unable to load follow-ups.</p>'; }
 })();
 function render(id,items){ const el=document.getElementById(id); if(!items.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><p>No follow-ups here.</p></div>';return;} el.innerHTML=items.map(x=>`<div class="followup-item"><div><strong>${escapeHtml(x.name)}</strong><small>${escapeHtml(x.product||'No product')} · ${x.assignedTo?escapeHtml(x.assignedTo.name):'Unassigned'}</small></div><div><span>${new Date(x.followUpDate).toLocaleDateString('en-IN')}</span><a href="tel:${x.phone}">📞</a><a href="edit-lead.html?id=${x._id}">✏️</a></div></div>`).join(''); }
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 </script>
 </body>

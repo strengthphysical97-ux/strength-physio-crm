@@ -3,11 +3,19 @@ const router = express.Router();
 const Lead = require("../models/Lead");
 const User = require("../models/User");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+<<<<<<< HEAD
+const AuditLog = require("../models/AuditLog");
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
 // ADD LEAD
 router.post("/", authMiddleware, async (req, res) => {
   try {
+<<<<<<< HEAD
+    let assignedTo = req.user.role === "admin" ? null : req.user.userId;
+=======
     let assignedTo = req.user.userId;
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
     if (req.user.role === "admin" && req.body.assignedTo) {
       const staff = await User.findOne({ _id: req.body.assignedTo, role: "staff" });
@@ -18,7 +26,11 @@ router.post("/", authMiddleware, async (req, res) => {
     const lead = new Lead({
       name: req.body.name,
       phone: req.body.phone,
+<<<<<<< HEAD
+      ...(String(req.body.email || "").trim() ? { email: String(req.body.email).trim() } : {}),
+=======
       email: req.body.email,
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
       product: req.body.product,
       source: req.body.source,
       status: req.body.status,
@@ -34,6 +46,10 @@ router.post("/", authMiddleware, async (req, res) => {
       .populate("createdBy", "name email role")
       .populate("assignedTo", "name email role");
 
+<<<<<<< HEAD
+    await AuditLog.create({action:"CREATE",entity:"Lead",entityId:populated._id,user:req.user.userId,details:`Lead ${populated.name}`});
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     res.status(201).json({ success: true, message: "Lead added successfully", lead: populated });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -45,7 +61,11 @@ router.get("/", authMiddleware, async (req, res) => {
   try {
     const filter = req.user.role === "admin"
       ? {}
+<<<<<<< HEAD
+      : { $or: [{ assignedTo: req.user.userId }, { assignedTo: { $in: [null] }, createdBy: req.user.userId }] };
+=======
       : { $or: [{ assignedTo: req.user.userId }, { createdBy: req.user.userId }] };
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
     const leads = await Lead.find(filter)
       .populate("createdBy", "name email role")
@@ -73,7 +93,11 @@ router.put("/:id", authMiddleware, async (req, res) => {
     const update = {
       name: req.body.name,
       phone: req.body.phone,
+<<<<<<< HEAD
+      ...(String(req.body.email || "").trim() ? { email: String(req.body.email).trim() } : {}),
+=======
       email: req.body.email,
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
       product: req.body.product,
       source: req.body.source,
       status: req.body.status,
@@ -100,6 +124,10 @@ router.put("/:id", authMiddleware, async (req, res) => {
       .populate("createdBy", "name email role")
       .populate("assignedTo", "name email role");
 
+<<<<<<< HEAD
+    await AuditLog.create({action:"UPDATE",entity:"Lead",entityId:updatedLead._id,user:req.user.userId,details:"Lead details updated"});
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     res.json({ success: true, message: "Lead updated successfully", lead: updatedLead });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -121,6 +149,10 @@ router.patch("/:id/assign", authMiddleware, adminMiddleware, async (req, res) =>
       .populate("assignedTo", "name email role");
 
     if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+<<<<<<< HEAD
+    await AuditLog.create({action:"ASSIGN",entity:"Lead",entityId:lead._id,user:req.user.userId,details:`Lead assigned to ${staff.name}`});
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     res.json({ success: true, message: `Lead assigned to ${staff.name}`, lead });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -141,6 +173,10 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     }
 
     if (!deletedLead) return res.status(404).json({ success: false, message: "Lead not found or access denied" });
+<<<<<<< HEAD
+    await AuditLog.create({action:"DELETE",entity:"Lead",entityId:deletedLead._id,user:req.user.userId,details:"Lead deleted"});
+=======
+>>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     res.json({ success: true, message: "Lead deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
