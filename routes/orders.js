@@ -88,14 +88,27 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.put("/:id", authMiddleware, async (req, res) => {
     try {
-        const payment = normalizePayment(req.body);
-        const { total, amountPaid, deliveryCharge, gstEnabled, gstPercent, gstAmount } = payment;
         const existing = await Order.findById(req.params.id);
         if (!existing) return res.status(404).json({ success: false, message: "Order not found" });
         if (req.user.role !== "admin" && String(existing.assignedTo || existing.createdBy) !== String(req.user.userId)) {
             return res.status(403).json({ success: false, message: "Access denied" });
         }
-        const update = { ...req.body, totalAmount: total, amountPaid, deliveryCharge, gstEnabled, gstPercent, gstAmount };
+        // GST is locked after order creation. Delivery charge can still be edited.
+        const payment = normalizePayment({
+            ...req.body,
+            gstEnabled: existing.gstEnabled,
+            gstPercent: existing.gstPercent
+        });
+        const { total, amountPaid, deliveryCharge, gstAmount } = payment;
+        const update = {
+            ...req.body,
+            totalAmount: total,
+            amountPaid,
+            deliveryCharge,
+            gstEnabled: existing.gstEnabled,
+            gstPercent: existing.gstPercent,
+            gstAmount: Number(gstAmount.toFixed(2))
+        };
         if (req.user.role === "admin" && req.body.assignedTo !== undefined) {
             const staff = req.body.assignedTo ? await User.findOne({ _id: req.body.assignedTo, role: "staff" }) : null;
             if (req.body.assignedTo && !staff) return res.status(400).json({ success: false, message: "Selected staff member not found" });

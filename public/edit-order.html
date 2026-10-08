@@ -49,10 +49,10 @@
         <label>Delivery Charge <span class="optional-label">(Optional)</span></label>
         <input type="number" id="deliveryCharge" min="0" value="0" step="0.01">
 
-        <label>GST <span class="optional-label">(Optional)</span></label>
+        <label>GST <span class="optional-label">(Locked after order creation)</span></label>
         <div class="inline-fields">
-            <label class="checkbox-label"><input type="checkbox" id="gstEnabled"> Add GST</label>
-            <input type="number" id="gstPercent" min="0" max="100" step="0.01" value="18" placeholder="GST %" disabled>
+            <label class="checkbox-label"><input type="checkbox" id="gstEnabled" disabled> GST Applied</label>
+            <input type="number" id="gstPercent" min="0" max="100" step="0.01" value="0" placeholder="GST %" disabled>
         </div>
 
         <label>Total Amount</label>
@@ -65,8 +65,17 @@
             <option value="Paid">Paid</option>
         </select>
 
-        <label>Amount Paid</label>
-        <input type="number" id="amountPaid" min="0" value="0" step="0.01" required>
+        <label>Current Amount Paid</label>
+        <input type="number" id="currentAmountPaid" min="0" value="0" step="0.01" readonly>
+
+        <label>Add Payment</label>
+        <input type="number" id="additionalPayment" min="0" value="0" step="0.01" placeholder="Enter new payment amount">
+
+        <label>Amount Paid (After This Payment)</label>
+        <input type="number" id="amountPaid" min="0" value="0" step="0.01" required readonly>
+
+        <label>Pending Amount</label>
+        <input type="number" id="pendingAmount" min="0" value="0" step="0.01" readonly>
 <label>Order Status</label>
 
         <select id="orderStatus">

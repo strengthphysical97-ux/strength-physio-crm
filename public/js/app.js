@@ -858,9 +858,22 @@ async function populateStaffSelect(selectId) {
         const response = await apiFetch("/api/users/staff");
         const data = await response.json();
         if (!data.success) return;
-        data.users.forEach(staff => {
+
+        // Keep the first placeholder and rebuild the staff options so repeated
+        // calls can never append the same staff multiple times.
+        const firstOption = select.options[0] ? select.options[0].cloneNode(true) : null;
+        select.innerHTML = "";
+        if (firstOption) select.appendChild(firstOption);
+
+        const seen = new Set();
+        (data.users || []).forEach(staff => {
+            const key = String(staff._id || staff.email || staff.name || "").toLowerCase();
+            if (!key || seen.has(key)) return;
+            seen.add(key);
             const option = document.createElement("option");
-            option.value = staff._id; option.textContent = staff.name; select.appendChild(option);
+            option.value = staff._id;
+            option.textContent = staff.name;
+            select.appendChild(option);
         });
     } catch (e) { console.error("Staff loading error", e); }
 }
@@ -1466,6 +1479,45 @@ function displayOrders(orders) {
     });
 
 }
+function setupEditOrderPaymentFields() {
+    const total = document.getElementById("totalAmount");
+    const qty = document.getElementById("quantity");
+    const price = document.getElementById("price");
+    const delivery = document.getElementById("deliveryCharge");
+    const gstEnabled = document.getElementById("gstEnabled");
+    const gstPercent = document.getElementById("gstPercent");
+    const currentPaid = document.getElementById("currentAmountPaid");
+    const additional = document.getElementById("additionalPayment");
+    const amountPaid = document.getElementById("amountPaid");
+    const pending = document.getElementById("pendingAmount");
+    const status = document.getElementById("paymentStatus");
+    if (!total || !qty || !price || !delivery || !gstEnabled || !gstPercent || !currentPaid || !additional || !amountPaid || !pending || !status) return;
+
+    function recalculateEditPayment() {
+        const base = Math.max(0, Number(qty.value || 0) * Number(price.value || 0));
+        const deliveryAmount = Math.max(0, Number(delivery.value || 0));
+        const gst = gstEnabled.checked ? base * Math.max(0, Number(gstPercent.value || 0)) / 100 : 0;
+        const calculatedTotal = Number((base + deliveryAmount + gst).toFixed(2));
+        total.value = calculatedTotal.toFixed(2);
+
+        const existingPaid = Math.max(0, Number(currentPaid.value || 0));
+        let extra = Math.max(0, Number(additional.value || 0));
+        const finalPaid = Math.min(calculatedTotal, existingPaid + extra);
+        amountPaid.value = finalPaid.toFixed(2);
+        pending.value = Math.max(0, calculatedTotal - finalPaid).toFixed(2);
+        additional.max = Math.max(0, calculatedTotal - existingPaid).toFixed(2);
+
+        if (finalPaid <= 0) status.value = "Pending";
+        else if (finalPaid >= calculatedTotal) status.value = "Paid";
+        else status.value = "Partial";
+    }
+
+    [qty, price, delivery].forEach(el => el.addEventListener("input", recalculateEditPayment));
+    additional.addEventListener("input", recalculateEditPayment);
+    gstEnabled.disabled = true;
+    gstPercent.disabled = true;
+}
+
 // ===============================
 // EDIT ORDER
 // ===============================
@@ -1528,7 +1580,7 @@ const editOrderForm = document.getElementById("editOrderForm");
 
 if (editOrderForm) {
 
-    setupOrderPaymentFields();
+    setupEditOrderPaymentFields();
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -1563,9 +1615,7 @@ if (editOrderForm) {
 
                 totalAmount: Number(document.getElementById("totalAmount").value || 0),
                 deliveryCharge: Number(document.getElementById("deliveryCharge").value || 0),
-                gstEnabled: document.getElementById("gstEnabled").checked,
-                gstPercent: Number(document.getElementById("gstPercent").value || 0),
-                paymentStatus: document.getElementById("paymentStatus").value,
+                // GST values are intentionally not editable here; the server also locks them.
                 amountPaid: Number(document.getElementById("amountPaid").value || 0),
 
                 orderStatus:
@@ -1691,11 +1741,15 @@ async function loadOrderForEdit(id) {
 
         document.getElementById("deliveryCharge").value = order.deliveryCharge || 0;
         document.getElementById("gstEnabled").checked = !!order.gstEnabled;
-        document.getElementById("gstPercent").value = order.gstPercent || 18;
+        document.getElementById("gstPercent").value = order.gstPercent || 0;
         document.getElementById("totalAmount").value = order.totalAmount || 0;
-        document.getElementById("amountPaid").value = order.amountPaid || 0;
+        document.getElementById("currentAmountPaid").value = Number(order.amountPaid || 0).toFixed(2);
+        document.getElementById("additionalPayment").value = "0";
+        document.getElementById("amountPaid").value = Number(order.amountPaid || 0).toFixed(2);
+        document.getElementById("pendingAmount").value = Math.max(0, Number(order.totalAmount || 0) - Number(order.amountPaid || 0)).toFixed(2);
         document.getElementById("paymentStatus").value = order.paymentStatus || "Pending";
-        document.getElementById("gstPercent").disabled = !order.gstEnabled;
+        document.getElementById("gstEnabled").disabled = true;
+        document.getElementById("gstPercent").disabled = true;
 
         document.getElementById("orderStatus").value =
             order.orderStatus || "New";
