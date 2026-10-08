@@ -20,6 +20,10 @@ const orderSchema = new mongoose.Schema(
         quantity: { type: Number, default: 1, min: 1 },
         price: { type: Number, required: true, min: 0 },
         totalAmount: { type: Number, required: true, min: 0 },
+        gstEnabled: { type: Boolean, default: false },
+        gstPercent: { type: Number, default: 0, min: 0, max: 100 },
+        gstAmount: { type: Number, default: 0, min: 0 },
+        deliveryCharge: { type: Number, default: 0, min: 0 },
 
         paymentStatus: {
             type: String,

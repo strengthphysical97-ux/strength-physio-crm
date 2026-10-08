@@ -8,23 +8,37 @@ const { authMiddleware } = require("../middleware/auth");
 const AuditLog = require("../models/AuditLog");
 
 function normalizePayment(body = {}) {
-    const total = Number(body.totalAmount || 0);
+    const quantity = Math.max(1, Number(body.quantity || 1));
+    const price = Number(body.price || 0);
+    const deliveryCharge = Math.max(0, Number(body.deliveryCharge || 0));
+    const gstEnabled = Boolean(body.gstEnabled);
+    const gstPercent = gstEnabled ? Math.max(0, Math.min(100, Number(body.gstPercent || 0))) : 0;
+    const baseAmount = quantity * price;
+    const gstAmount = gstEnabled ? (baseAmount * gstPercent) / 100 : 0;
+    const total = Number((baseAmount + deliveryCharge + gstAmount).toFixed(2));
     let amountPaid = Number(body.amountPaid || 0);
 
-    if (!Number.isFinite(total) || total < 0) {
-        throw new Error("Total amount must be a valid non-negative number");
+    if (!Number.isFinite(price) || price < 0) {
+        throw new Error("Price must be a valid non-negative number");
+    }
+    if (!Number.isFinite(deliveryCharge) || deliveryCharge < 0) {
+        throw new Error("Delivery charge must be a valid non-negative number");
+    }
+    if (!Number.isFinite(gstPercent) || gstPercent < 0 || gstPercent > 100) {
+        throw new Error("GST must be between 0 and 100 percent");
     }
     if (!Number.isFinite(amountPaid) || amountPaid < 0) {
         throw new Error("Paid amount must be a valid non-negative number");
     }
     if (amountPaid > total) amountPaid = total;
 
-    return { total, amountPaid };
+    return { total, amountPaid, deliveryCharge, gstEnabled, gstPercent, gstAmount: Number(gstAmount.toFixed(2)) };
 }
 
 router.post("/", authMiddleware, async (req, res) => {
     try {
-        const { total, amountPaid } = normalizePayment(req.body);
+        const payment = normalizePayment(req.body);
+        const { total, amountPaid, deliveryCharge, gstEnabled, gstPercent, gstAmount } = payment;
         const customer = await Customer.findById(req.body.customer);
         if (!customer) return res.status(400).json({ success: false, message: "Customer not found" });
         let assignedTo = customer.assignedTo || req.user.userId;
@@ -39,6 +53,10 @@ router.post("/", authMiddleware, async (req, res) => {
         const order = new Order({
             ...req.body,
             totalAmount: total,
+            deliveryCharge,
+            gstEnabled,
+            gstPercent,
+            gstAmount,
             amountPaid,
             createdBy: req.user.userId,
             assignedTo,
@@ -70,13 +88,14 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.put("/:id", authMiddleware, async (req, res) => {
     try {
-        const { total, amountPaid } = normalizePayment(req.body);
+        const payment = normalizePayment(req.body);
+        const { total, amountPaid, deliveryCharge, gstEnabled, gstPercent, gstAmount } = payment;
         const existing = await Order.findById(req.params.id);
         if (!existing) return res.status(404).json({ success: false, message: "Order not found" });
         if (req.user.role !== "admin" && String(existing.assignedTo || existing.createdBy) !== String(req.user.userId)) {
             return res.status(403).json({ success: false, message: "Access denied" });
         }
-        const update = { ...req.body, totalAmount: total, amountPaid };
+        const update = { ...req.body, totalAmount: total, amountPaid, deliveryCharge, gstEnabled, gstPercent, gstAmount };
         if (req.user.role === "admin" && req.body.assignedTo !== undefined) {
             const staff = req.body.assignedTo ? await User.findOne({ _id: req.body.assignedTo, role: "staff" }) : null;
             if (req.body.assignedTo && !staff) return res.status(400).json({ success: false, message: "Selected staff member not found" });

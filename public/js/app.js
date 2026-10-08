@@ -1213,6 +1213,45 @@ async function loadCustomersForOrder() {
     }
 
 }
+function setupOrderPaymentFields() {
+    const total = document.getElementById("totalAmount");
+    const qty = document.getElementById("quantity");
+    const price = document.getElementById("price");
+    const delivery = document.getElementById("deliveryCharge");
+    const gstEnabled = document.getElementById("gstEnabled");
+    const gstPercent = document.getElementById("gstPercent");
+    const paymentStatus = document.getElementById("paymentStatus");
+    const amountPaid = document.getElementById("amountPaid");
+    if (!total || !qty || !price || !delivery || !gstEnabled || !gstPercent || !paymentStatus || !amountPaid) return;
+
+    function recalculate() {
+        const base = Math.max(0, Number(qty.value || 0) * Number(price.value || 0));
+        const deliveryAmount = Math.max(0, Number(delivery.value || 0));
+        const gst = gstEnabled.checked ? base * Math.max(0, Number(gstPercent.value || 0)) / 100 : 0;
+        total.value = (base + deliveryAmount + gst).toFixed(2);
+        gstPercent.disabled = !gstEnabled.checked;
+        if (paymentStatus.value === "Paid") amountPaid.value = total.value;
+        if (paymentStatus.value === "Pending") amountPaid.value = "0";
+        amountPaid.max = total.value;
+    }
+
+    [qty, price, delivery, gstPercent].forEach(el => el.addEventListener("input", recalculate));
+    gstEnabled.addEventListener("change", recalculate);
+    paymentStatus.addEventListener("change", () => {
+        if (paymentStatus.value === "Paid") amountPaid.value = total.value || 0;
+        else if (paymentStatus.value === "Pending") amountPaid.value = 0;
+        amountPaid.max = total.value || 0;
+    });
+    amountPaid.addEventListener("input", () => {
+        const paid = Number(amountPaid.value || 0);
+        const t = Number(total.value || 0);
+        if (paid <= 0) paymentStatus.value = "Pending";
+        else if (paid >= t) paymentStatus.value = "Paid";
+        else paymentStatus.value = "Partial";
+    });
+    recalculate();
+}
+
 // ===============================
 // ADD NEW ORDER
 // ===============================
@@ -1222,6 +1261,8 @@ populateStaffSelect("assignedTo");
 const orderForm = document.getElementById("orderForm");
 
 if (orderForm) {
+
+    setupOrderPaymentFields();
 
     orderForm.addEventListener("submit", async function (e) {
 
@@ -1243,13 +1284,12 @@ if (orderForm) {
                 document.getElementById("price").value
             ),
 
-            totalAmount: Number(
-                document.getElementById("totalAmount").value
-            ),
-
-            amountPaid: Number(
-                document.getElementById("amountPaid").value || 0
-            ),
+            totalAmount: Number(document.getElementById("totalAmount").value || 0),
+            deliveryCharge: Number(document.getElementById("deliveryCharge").value || 0),
+            gstEnabled: document.getElementById("gstEnabled").checked,
+            gstPercent: Number(document.getElementById("gstPercent").value || 0),
+            paymentStatus: document.getElementById("paymentStatus").value,
+            amountPaid: Number(document.getElementById("amountPaid").value || 0),
 
             orderStatus:
                 document.getElementById("orderStatus").value,
@@ -1488,6 +1528,8 @@ const editOrderForm = document.getElementById("editOrderForm");
 
 if (editOrderForm) {
 
+    setupOrderPaymentFields();
+
     const urlParams = new URLSearchParams(window.location.search);
 
     const orderId = urlParams.get("id");
@@ -1519,13 +1561,12 @@ if (editOrderForm) {
                     document.getElementById("price").value
                 ),
 
-                totalAmount: Number(
-                    document.getElementById("totalAmount").value
-                ),
-
-                amountPaid: Number(
-                    document.getElementById("amountPaid").value || 0
-                ),
+                totalAmount: Number(document.getElementById("totalAmount").value || 0),
+                deliveryCharge: Number(document.getElementById("deliveryCharge").value || 0),
+                gstEnabled: document.getElementById("gstEnabled").checked,
+                gstPercent: Number(document.getElementById("gstPercent").value || 0),
+                paymentStatus: document.getElementById("paymentStatus").value,
+                amountPaid: Number(document.getElementById("amountPaid").value || 0),
 
                 orderStatus:
                     document.getElementById("orderStatus").value,
@@ -1648,11 +1689,13 @@ async function loadOrderForEdit(id) {
         document.getElementById("price").value =
             order.price || 0;
 
-        document.getElementById("totalAmount").value =
-            order.totalAmount || 0;
-
-        document.getElementById("amountPaid").value =
-            order.amountPaid || 0;
+        document.getElementById("deliveryCharge").value = order.deliveryCharge || 0;
+        document.getElementById("gstEnabled").checked = !!order.gstEnabled;
+        document.getElementById("gstPercent").value = order.gstPercent || 18;
+        document.getElementById("totalAmount").value = order.totalAmount || 0;
+        document.getElementById("amountPaid").value = order.amountPaid || 0;
+        document.getElementById("paymentStatus").value = order.paymentStatus || "Pending";
+        document.getElementById("gstPercent").disabled = !order.gstEnabled;
 
         document.getElementById("orderStatus").value =
             order.orderStatus || "New";
