@@ -1094,7 +1094,6 @@ section {
         align-items: flex-start;
     }
 }
-<<<<<<< HEAD
 
 /* =========================================================
    FINAL CRM UI/UX POLISH — modern responsive system
@@ -1171,5 +1170,3 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
 @media(max-width:1100px){.followup-stats{grid-template-columns:repeat(2,1fr)}.followup-grid.professional-followup-grid{grid-template-columns:1fr}.followup-panel{min-height:0}.followup-empty{min-height:170px}}
 @media(max-width:700px){.followups-header{align-items:flex-start!important}.header-actions{width:100%}.header-actions .btn{flex:1;text-align:center}.followup-toolbar{align-items:stretch;flex-direction:column}.followup-controls{width:100%}.followup-search{width:100%;flex:1}.followup-controls .btn{white-space:nowrap}.followup-stats{grid-template-columns:1fr 1fr;gap:10px}.followup-stat{padding:14px}.followup-stat strong{font-size:23px}.customer-info strong,.customer-info small{max-width:130px}}
 @media(max-width:480px){.followup-stats{grid-template-columns:1fr}.followup-stat{padding:13px 15px}.followup-controls{flex-direction:column;align-items:stretch}.followup-search{width:100%}.followup-controls .btn{width:100%}.followup-panel-header{padding:15px}.pro-item{padding:11px 7px}.customer-info strong,.customer-info small{max-width:115px}.followup-meta span:nth-child(2){display:none}.followup-footer-note{align-items:flex-start}}
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128

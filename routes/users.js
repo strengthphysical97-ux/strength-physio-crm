@@ -3,12 +3,9 @@ const router = express.Router();
 
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-<<<<<<< HEAD
 const Customer = require("../models/Customer");
 const Lead = require("../models/Lead");
 const Order = require("../models/Order");
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 const {
     authMiddleware,
     adminMiddleware
@@ -162,7 +159,6 @@ router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
     try {
 
-<<<<<<< HEAD
         const target = await User.findById(req.params.id);
         if (!target) return res.status(404).json({ success: false, message: "User not found" });
         if (String(target._id) === String(req.user.userId)) return res.status(400).json({ success: false, message: "You cannot delete your own account" });
@@ -173,10 +169,6 @@ router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
         ]);
         if (customers || leads || orders) return res.status(409).json({ success:false, message:`Cannot delete ${target.name}. Reassign ${customers} customers, ${leads} leads and ${orders} orders first.` });
         const deletedUser = await User.findByIdAndDelete(req.params.id);
-=======
-        const deletedUser =
-            await User.findByIdAndDelete(req.params.id);
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
 
         if (!deletedUser) {

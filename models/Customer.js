@@ -37,7 +37,6 @@ const customerSchema = new mongoose.Schema(
         notes: {
             type: String,
             trim: true
-<<<<<<< HEAD
         },
 
         assignedTo: {
@@ -45,9 +44,6 @@ const customerSchema = new mongoose.Schema(
             ref: "User"
         },
         assignedAt: { type: Date }
-=======
-        }
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     },
     {
         timestamps: true

@@ -18,13 +18,9 @@ const customerRoutes = require("./routes/customers");
 const orderRoutes = require("./routes/orders");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
-<<<<<<< HEAD
 const dashboardRoutes = require("./routes/dashboard");
 const reportRoutes = require("./routes/reports");
 const auditRoutes = require("./routes/audit"); 
-=======
-const dashboardRoutes = require("./routes/dashboard"); 
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
 
 // ===============================
@@ -56,11 +52,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-<<<<<<< HEAD
 app.use("/api/reports", reportRoutes);
 app.use("/api/audit", auditRoutes);
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
 
 // ===============================

@@ -34,12 +34,8 @@ if (leadForm) {
             source: document.getElementById("source").value,
             status: document.getElementById("status").value,
             followUpDate: document.getElementById("followUpDate").value,
-<<<<<<< HEAD
             notes: document.getElementById("notes").value,
             assignedTo: document.getElementById("assignedTo")?.value || ""
-=======
-            notes: document.getElementById("notes").value
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
         };
 
         try {
@@ -155,11 +151,7 @@ async function loadStaffFilter() {
     try {
         const token = localStorage.getItem("crmToken");
 
-<<<<<<< HEAD
         const response = await fetch("/api/users/staff", {
-=======
-        const response = await fetch("/api/users", {
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -214,13 +206,8 @@ if (staffFilter) {
         const filteredLeads = allLeadsData.filter(function (lead) {
 
             return (
-<<<<<<< HEAD
                 (lead.assignedTo && String(lead.assignedTo._id) === String(selectedStaff)) ||
                 (lead.createdBy && String(lead.createdBy._id) === String(selectedStaff))
-=======
-                lead.createdBy &&
-                lead.createdBy._id === selectedStaff
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
             );
 
         });
@@ -261,15 +248,9 @@ function displayLeads(leads) {
             <td>${lead.status}</td>
             <td>
     ${
-<<<<<<< HEAD
         lead.assignedTo?.name ||
         lead.createdBy?.name ||
         "Unassigned"
-=======
-        lead.createdBy
-            ? lead.createdBy.name
-            : "Unassigned"
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     }
 </td>
 
@@ -424,14 +405,10 @@ if (editLeadForm) {
                         document.getElementById("followUpDate").value,
 
                     notes:
-<<<<<<< HEAD
                         document.getElementById("notes").value,
 
                     assignedTo:
                         document.getElementById("assignedTo")?.value || ""
-=======
-                        document.getElementById("notes").value
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
                 };
 
@@ -586,14 +563,11 @@ async function loadLeadForEdit(id) {
         document.getElementById("notes").value =
             lead.notes || "";
 
-<<<<<<< HEAD
         const assignedSelect = document.getElementById("assignedTo");
         if (assignedSelect) {
             await loadAssignedStaff(assignedSelect, lead.assignedTo?._id || "");
         }
 
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
     } catch (error) {
 
@@ -677,7 +651,6 @@ if (statusFilter) {
 
 }
 // ===============================
-<<<<<<< HEAD
 // PHASE 2 STAFF ASSIGNMENT
 // ===============================
 
@@ -721,8 +694,6 @@ if (assignedToSelect) {
 }
 
 // ===============================
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 // DASHBOARD LEAD COUNTS
 // ===============================
 
@@ -795,11 +766,7 @@ async function loadCustomers() {
         if (!data.success) {
 
             customersTable.innerHTML =
-<<<<<<< HEAD
                 "<tr><td colspan='7'>Unable to load customers</td></tr>";
-=======
-                "<tr><td colspan='6'>Unable to load customers</td></tr>";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
             return;
         }
@@ -811,11 +778,7 @@ async function loadCustomers() {
         console.error(error);
 
         customersTable.innerHTML =
-<<<<<<< HEAD
             "<tr><td colspan='7'>Server error</td></tr>";
-=======
-            "<tr><td colspan='6'>Server error</td></tr>";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
     }
 
@@ -831,11 +794,7 @@ function displayCustomers(customers) {
     if (customers.length === 0) {
 
         customersTable.innerHTML =
-<<<<<<< HEAD
             "<tr><td colspan='7'>No customers found</td></tr>";
-=======
-            "<tr><td colspan='6'>No customers found</td></tr>";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         return;
     }
@@ -858,11 +817,8 @@ function displayCustomers(customers) {
 
             <td>${customer.city || "-"}</td>
 
-<<<<<<< HEAD
             <td>${customer.assignedTo?.name || "Unassigned"}</td>
 
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
             <td>
 
     <a href="tel:${customer.phone}">
@@ -893,7 +849,6 @@ function displayCustomers(customers) {
 // ADD NEW CUSTOMER
 // ===============================
 
-<<<<<<< HEAD
 async function populateStaffSelect(selectId) {
     const select = document.getElementById(selectId);
     if (!select) return;
@@ -911,8 +866,6 @@ async function populateStaffSelect(selectId) {
 }
 populateStaffSelect("assignedTo");
 
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 const customerForm = document.getElementById("customerForm");
 
 if (customerForm) {
@@ -935,12 +888,8 @@ if (customerForm) {
 
             city: document.getElementById("city").value,
 
-<<<<<<< HEAD
             notes: document.getElementById("notes").value,
             assignedTo: document.getElementById("assignedTo")?.value || ""
-=======
-            notes: document.getElementById("notes").value
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         };
 
@@ -1268,11 +1217,8 @@ async function loadCustomersForOrder() {
 // ADD NEW ORDER
 // ===============================
 
-<<<<<<< HEAD
 populateStaffSelect("assignedTo");
 
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 const orderForm = document.getElementById("orderForm");
 
 if (orderForm) {
@@ -1285,11 +1231,8 @@ if (orderForm) {
 
             customer: document.getElementById("customer").value,
 
-<<<<<<< HEAD
             assignedTo: document.getElementById("assignedTo")?.value || "",
 
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
             product: document.getElementById("product").value,
 
             quantity: Number(
@@ -1304,14 +1247,9 @@ if (orderForm) {
                 document.getElementById("totalAmount").value
             ),
 
-<<<<<<< HEAD
             amountPaid: Number(
                 document.getElementById("amountPaid").value || 0
             ),
-=======
-            paymentStatus:
-                document.getElementById("paymentStatus").value,
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
             orderStatus:
                 document.getElementById("orderStatus").value,
@@ -1372,11 +1310,7 @@ if (orderForm) {
 
 const ordersTable = document.getElementById("ordersTable");
 
-<<<<<<< HEAD
 if (ordersTable && !window.ENHANCED_ORDERS) {
-=======
-if (ordersTable) {
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
     loadOrders();
 }
 
@@ -1391,11 +1325,7 @@ async function loadOrders() {
         if (!data.success) {
 
             ordersTable.innerHTML =
-<<<<<<< HEAD
                 "<tr><td colspan='12'>Unable to load orders</td></tr>";
-=======
-                "<tr><td colspan='10'>Unable to load orders</td></tr>";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
             return;
         }
@@ -1407,11 +1337,7 @@ async function loadOrders() {
         console.error(error);
 
         ordersTable.innerHTML =
-<<<<<<< HEAD
             "<tr><td colspan='12'>Server error</td></tr>";
-=======
-            "<tr><td colspan='10'>Server error</td></tr>";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
     }
 
@@ -1427,11 +1353,7 @@ function displayOrders(orders) {
     if (orders.length === 0) {
 
         ordersTable.innerHTML =
-<<<<<<< HEAD
             "<tr><td colspan='12'>No orders found</td></tr>";
-=======
-            "<tr><td colspan='10'>No orders found</td></tr>";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         return;
     }
@@ -1465,15 +1387,11 @@ function displayOrders(orders) {
 
             <td>₹${order.price}</td>
 
-<<<<<<< HEAD
             <td>₹${Number(order.totalAmount || 0).toLocaleString("en-IN")}</td>
 
             <td>₹${Number(order.amountPaid || 0).toLocaleString("en-IN")}</td>
 
             <td>₹${Number(order.remainingAmount || 0).toLocaleString("en-IN")}</td>
-=======
-            <td>₹${order.totalAmount}</td>
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
             <td>${order.paymentStatus}</td>
 
@@ -1605,14 +1523,9 @@ if (editOrderForm) {
                     document.getElementById("totalAmount").value
                 ),
 
-<<<<<<< HEAD
                 amountPaid: Number(
                     document.getElementById("amountPaid").value || 0
                 ),
-=======
-                paymentStatus:
-                    document.getElementById("paymentStatus").value,
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
                 orderStatus:
                     document.getElementById("orderStatus").value,
@@ -1627,11 +1540,7 @@ if (editOrderForm) {
 
             try {
 
-<<<<<<< HEAD
                 const response = await apiFetch(
-=======
-                const response = await fetch(
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
                     `/api/orders/${orderId}`,
                     {
                         method: "PUT",
@@ -1742,13 +1651,8 @@ async function loadOrderForEdit(id) {
         document.getElementById("totalAmount").value =
             order.totalAmount || 0;
 
-<<<<<<< HEAD
         document.getElementById("amountPaid").value =
             order.amountPaid || 0;
-=======
-        document.getElementById("paymentStatus").value =
-            order.paymentStatus || "Pending";
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         document.getElementById("orderStatus").value =
             order.orderStatus || "New";
@@ -1933,26 +1837,15 @@ async function loadCRMStats() {
         document.getElementById("totalOrders").innerText =
             orders.length;
 
-<<<<<<< HEAD
         // Total Sales = amount actually received (including partial payments)
         const totalSales = orders.reduce(
             (sum, order) => sum + Number(order.amountPaid || 0),
             0
         );
-=======
-        // Total Sales
-        const totalSales = orders
-            .filter(order => order.paymentStatus === "Paid")
-            .reduce(
-                (sum, order) => sum + Number(order.totalAmount || 0),
-                0
-            );
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         document.getElementById("totalSales").innerText =
             "₹" + totalSales.toLocaleString("en-IN");
 
-<<<<<<< HEAD
         // Pending Payments = remaining balance
         const pendingPayments = orders.reduce(
             (sum, order) =>
@@ -1962,15 +1855,6 @@ async function loadCRMStats() {
                 ),
             0
         );
-=======
-        // Pending Payments
-        const pendingPayments = orders
-            .filter(order => order.paymentStatus !== "Paid")
-            .reduce(
-                (sum, order) => sum + Number(order.totalAmount || 0),
-                0
-            );
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         document.getElementById("pendingPayments").innerText =
             "₹" + pendingPayments.toLocaleString("en-IN");
@@ -2181,32 +2065,10 @@ function updateBusinessAnalytics() {
     ========================================== */
 
     const totalSales =
-<<<<<<< HEAD
         filteredOrders.reduce(
             (sum, order) => sum + Number(order.amountPaid || 0),
             0
         );
-=======
-        filteredOrders
-
-            .filter(order =>
-                order.paymentStatus === "Paid"
-            )
-
-            .reduce(
-                (sum, order) => {
-
-                    return (
-                        sum +
-                        Number(
-                            order.totalAmount || 0
-                        )
-                    );
-
-                },
-                0
-            );
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
 
     /* ==========================================
@@ -2388,13 +2250,7 @@ function createYearlyAnalytics(
 
     orders
 
-<<<<<<< HEAD
         .filter(order => Number(order.amountPaid || 0) > 0)
-=======
-        .filter(order =>
-            order.paymentStatus === "Paid"
-        )
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         .forEach(order => {
 
@@ -2411,11 +2267,7 @@ function createYearlyAnalytics(
 
             salesData[month] +=
                 Number(
-<<<<<<< HEAD
                     order.amountPaid || 0
-=======
-                    order.totalAmount || 0
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
                 );
 
         });
@@ -2522,13 +2374,7 @@ function createDailyAnalytics(
 
     orders
 
-<<<<<<< HEAD
         .filter(order => Number(order.amountPaid || 0) > 0)
-=======
-        .filter(order =>
-            order.paymentStatus === "Paid"
-        )
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
 
         .forEach(order => {
 
@@ -2550,11 +2396,7 @@ function createDailyAnalytics(
 
                 salesData[day - 1] +=
                     Number(
-<<<<<<< HEAD
                         order.amountPaid || 0
-=======
-                        order.totalAmount || 0
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
                     );
 
             }
@@ -2990,7 +2832,6 @@ const enhancedDashboardMonth = document.getElementById("dashboardMonth");
 if (enhancedDashboardYear) enhancedDashboardYear.addEventListener("change", loadEnhancedDashboard);
 if (enhancedDashboardMonth) enhancedDashboardMonth.addEventListener("change", loadEnhancedDashboard);
 if (document.getElementById("totalLeads")) loadEnhancedDashboard();
-<<<<<<< HEAD
 
 async function loadDetailedStaffPerformance() {
     const select = document.getElementById("performanceStaffSelect");
@@ -3054,5 +2895,3 @@ async function loadPaymentCenter() {
 if (document.getElementById("paymentCenterTable")) {
     loadPaymentCenter();
 }
-=======
->>>>>>> 1758c5154ccdcf1e7d054296ee602a49ff258128
