@@ -53,6 +53,9 @@ const orderSchema = new mongoose.Schema(
             default: "New"
         },
         orderDate: { type: Date, default: Date.now },
+        source: { type: String, trim: true, default: "Other" },
+        sourceType: { type: String, trim: true, default: "" },
+        campaignName: { type: String, trim: true, default: "" },
         notes: { type: String, trim: true }
     },
     { timestamps: true }

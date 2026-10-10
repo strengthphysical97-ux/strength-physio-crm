@@ -23,3 +23,11 @@
 - Keep `.env` out of source control.
 - Back up MongoDB before deployment and before schema/data changes.
 - Create at least one admin account with `create-admin.js`; change any temporary credentials immediately.
+
+
+## Sales source and customer history update
+- Orders now store lead source, content/campaign type, and campaign name.
+- Orders page has a source filter and customer history shortcut.
+- Customer history summarizes total orders, billing, paid, pending, order details, and payment timeline.
+- New payment increments are recorded when the order total paid amount increases. Legacy orders without itemized payment history show their saved total as a legacy record.
+- GST is locked on edit; delivery charge remains editable.

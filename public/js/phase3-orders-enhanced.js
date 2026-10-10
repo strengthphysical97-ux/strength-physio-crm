@@ -48,6 +48,7 @@
             payment: document.getElementById("orderPaymentFilter")?.value || "all",
             status: document.getElementById("orderStatusFilter")?.value || "all",
             staff: document.getElementById("orderStaffFilter")?.value || "all",
+            source: document.getElementById("orderSourceFilter")?.value || "all",
             date: document.getElementById("orderDateFilter")?.value || ""
         };
     }
@@ -67,6 +68,7 @@
             if (f.payment !== "all" && (order.paymentStatus || "Pending") !== f.payment) return false;
             if (f.status !== "all" && (order.orderStatus || "New") !== f.status) return false;
             if (f.staff !== "all" && String(order.assignedTo?._id || order.assignedTo || "") !== String(f.staff)) return false;
+            if (f.source !== "all" && (order.source || "Other") !== f.source) return false;
 
             if (f.date) {
                 const d = new Date(order.orderDate || order.createdAt);
@@ -99,6 +101,7 @@
                     <td><strong>${customer.name || "-"}</strong><div class="table-subtext">${customer.company || ""}</div></td>
                     <td><span class="staff-badge">👤 ${order.assignedTo?.name || "Unassigned"}</span></td>
                     <td>${customer.phone || "-"}</td>
+                    <td><strong>${order.source || "Other"}</strong><div class="table-subtext">${order.sourceType || ""}</div></td>
                     <td>${order.product || "-"}</td>
                     <td>${order.quantity || 1}</td>
                     <td>${money(order.price)}</td>
@@ -111,6 +114,7 @@
                     <td>
                         ${safePhone ? `<a href="tel:${safePhone}"><button type="button">📞</button></a>` : ""}
                         ${safePhone ? `<a href="https://wa.me/${safePhone}" target="_blank"><button type="button">🟢</button></a>` : ""}
+                        <a href="customer-history.html?id=${customer._id || ""}" title="Customer payment & purchase history"><button type="button">📊</button></a>
                         <button type="button" onclick="editOrder('${order._id}')">✏️</button>
                         <button type="button" onclick="deleteOrder('${order._id}')">🗑️</button>
                     </td>
@@ -131,7 +135,7 @@
             const response = await phase3ApiFetch("/api/users/staff");
             const data = await response.json();
             if (!data.success) return;
-            select.innerHTML = '<option value="all">All Staff</option>' + data.users.map(u => `<option value="${u._id}">${u.name}</option>`).join("");
+            select.innerHTML = '<option value="all">All Staff</option>' + [...new Map((data.users || []).filter(u => u && u._id).map(u => [String(u._id), u])).values()].map(u => `<option value="${u._id}">${u.name}</option>`).join("");
         } catch (e) { console.error("Order staff filter error", e); }
     }
 
@@ -143,7 +147,7 @@
             renderOrderSummary(phase3Orders);
             renderOrders(phase3Orders);
 
-            ["orderSearch", "orderPaymentFilter", "orderStaffFilter", "orderStatusFilter", "orderDateFilter"].forEach(id => {
+            ["orderSearch", "orderPaymentFilter", "orderStaffFilter", "orderSourceFilter", "orderStatusFilter", "orderDateFilter"].forEach(id => {
                 document.getElementById(id)?.addEventListener(id === "orderSearch" ? "input" : "change", applyFilters);
             });
 
@@ -151,6 +155,7 @@
                 document.getElementById("orderSearch").value = "";
                 document.getElementById("orderPaymentFilter").value = "all";
                 document.getElementById("orderStaffFilter").value = "all";
+                document.getElementById("orderSourceFilter").value = "all";
                 document.getElementById("orderStatusFilter").value = "all";
                 document.getElementById("orderDateFilter").value = "";
                 applyFilters();
