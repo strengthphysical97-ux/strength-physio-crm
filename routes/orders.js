@@ -120,16 +120,35 @@ router.put("/:id", authMiddleware, async (req, res) => {
             return res.status(403).json({ success: false, message: "Access denied" });
         }
         // GST is fixed at order creation; only product/quantity/price/delivery may change.
-        const payment = normalizePayment({ ...req.body, gstEnabled: existing.gstEnabled, gstPercent: existing.gstPercent });
-        const { total, amountPaid, deliveryCharge } = payment;
-        const gstAmount = Number((existing.gstEnabled ? (Number(req.body.quantity || existing.quantity) * Number(req.body.price || existing.price) * Number(existing.gstPercent || 0) / 100) : 0).toFixed(2));
-        const update = { ...req.body, totalAmount: total, amountPaid, deliveryCharge, gstEnabled: existing.gstEnabled, gstPercent: existing.gstPercent, gstAmount };
-        delete update.payments;
         const oldPaid = Number(existing.amountPaid || 0);
-        if (amountPaid > oldPaid) {
-            const requestedPaymentDate = req.body.newPaymentDate ? new Date(`${req.body.newPaymentDate}T12:00:00`) : new Date();
+        const explicitNewPayment = req.body.newPaymentAmount !== undefined && req.body.newPaymentAmount !== null;
+        const requestedNewPayment = explicitNewPayment
+            ? Number(req.body.newPaymentAmount || 0)
+            : Math.max(0, Number(req.body.amountPaid || 0) - oldPaid); // compatibility with older clients
+        if (!Number.isFinite(requestedNewPayment) || requestedNewPayment < 0) {
+            return res.status(400).json({ success: false, message: "New payment must be a valid non-negative amount" });
+        }
+        const payment = normalizePayment({
+            ...req.body,
+            amountPaid: oldPaid + requestedNewPayment,
+            gstEnabled: existing.gstEnabled,
+            gstPercent: existing.gstPercent
+        });
+        const { total, amountPaid, deliveryCharge } = payment;
+        if (requestedNewPayment > Math.max(0, total - oldPaid) + 0.001) {
+            return res.status(400).json({ success: false, message: "New payment cannot be greater than the pending balance" });
+        }
+        const finalPaid = Number((oldPaid + requestedNewPayment).toFixed(2));
+        const gstAmount = Number((existing.gstEnabled ? (Number(req.body.quantity || existing.quantity) * Number(req.body.price || existing.price) * Number(existing.gstPercent || 0) / 100) : 0).toFixed(2));
+        const update = { ...req.body, totalAmount: total, amountPaid: Math.min(finalPaid, total), deliveryCharge, gstEnabled: existing.gstEnabled, gstPercent: existing.gstPercent, gstAmount };
+        delete update.payments;
+        delete update.newPaymentAmount;
+        delete update.newPaymentDate;
+        if (requestedNewPayment > 0) {
+            const dateText = String(req.body.newPaymentDate || "").trim();
+            const requestedPaymentDate = /^\d{4}-\d{2}-\d{2}$/.test(dateText) ? new Date(`${dateText}T12:00:00`) : new Date();
             const paymentDate = Number.isNaN(requestedPaymentDate.getTime()) ? new Date() : requestedPaymentDate;
-            update.$push = { payments: { amount: Number((amountPaid - oldPaid).toFixed(2)), method: req.body.paymentMethod || existing.paymentMethod || "", date: paymentDate, note: "Additional payment" } };
+            update.$push = { payments: { amount: Number(requestedNewPayment.toFixed(2)), method: req.body.paymentMethod || existing.paymentMethod || "", date: paymentDate, note: "Additional payment", receivedBy: req.user.userId } };
         }
         if (req.user.role === "admin" && req.body.assignedTo !== undefined) {
             const staff = req.body.assignedTo ? await User.findOne({ _id: req.body.assignedTo, role: "staff" }) : null;

@@ -1632,6 +1632,7 @@ if (editOrderForm) {
                 gstPercent: Number(document.getElementById("gstPercent").value || 0),
                 paymentStatus: document.getElementById("paymentStatus").value,
                 amountPaid: Number(document.getElementById("amountPaid").value || 0),
+                newPaymentAmount: additionalPayment,
                 newPaymentDate: document.getElementById("newPaymentDate")?.value || "",
                 source: document.getElementById("source")?.value || "Other",
                 sourceType: document.getElementById("sourceType")?.value || "",
