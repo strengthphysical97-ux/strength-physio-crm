@@ -8,9 +8,15 @@ const leadSchema = new mongoose.Schema(
     product: { type: String, trim: true },
     source: {
       type: String,
-      enum: ["Website", "WhatsApp", "Instagram", "Facebook", "Google", "Other"],
+      enum: ["Website", "WhatsApp", "Instagram", "IndiaMART", "Justdial", "Meta Ads", "Facebook", "Google", "Referral", "Other"],
       default: "Other"
     },
+    sourceType: {
+      type: String,
+      enum: ["", "Post", "Reel / Video", "Paid Advertisement", "Story", "Direct Message", "Call", "Organic", "Other"],
+      default: ""
+    },
+    campaignName: { type: String, trim: true, default: "" },
     status: {
       type: String,
       enum: ["New", "Contacted", "Interested", "Follow-up", "Converted", "Lost"],

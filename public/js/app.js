@@ -32,6 +32,8 @@ if (leadForm) {
             email: document.getElementById("email").value,
             product: document.getElementById("product").value,
             source: document.getElementById("source").value,
+            sourceType: document.getElementById("sourceType")?.value || "",
+            campaignName: document.getElementById("campaignName")?.value.trim() || "",
             status: document.getElementById("status").value,
             followUpDate: document.getElementById("followUpDate").value,
             notes: document.getElementById("notes").value,
@@ -398,6 +400,12 @@ if (editLeadForm) {
                     source:
                         document.getElementById("source").value,
 
+                    sourceType:
+                        document.getElementById("sourceType")?.value || "",
+
+                    campaignName:
+                        document.getElementById("campaignName")?.value.trim() || "",
+
                     status:
                         document.getElementById("status").value,
 
@@ -545,6 +553,11 @@ async function loadLeadForEdit(id) {
 
         document.getElementById("source").value =
             lead.source || "Other";
+
+        const sourceTypeSelect = document.getElementById("sourceType");
+        if (sourceTypeSelect) sourceTypeSelect.value = lead.sourceType || "";
+        const campaignNameInput = document.getElementById("campaignName");
+        if (campaignNameInput) campaignNameInput.value = lead.campaignName || "";
 
         document.getElementById("status").value =
             lead.status || "New";

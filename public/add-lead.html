@@ -36,15 +36,34 @@
 
 
             <label>Lead Source</label>
-
-            <select id="source">
-                <option value="Website">Website</option>
-                <option value="WhatsApp">WhatsApp</option>
+            <select id="source" required>
                 <option value="Instagram">Instagram</option>
+                <option value="IndiaMART">IndiaMART</option>
+                <option value="Justdial">Justdial</option>
+                <option value="Meta Ads">Meta Ads</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Website">Website</option>
+                <option value="Referral">Referral</option>
                 <option value="Facebook">Facebook</option>
                 <option value="Google">Google</option>
                 <option value="Other">Other</option>
             </select>
+
+            <label>Source Type / Content</label>
+            <select id="sourceType">
+                <option value="">Select source type</option>
+                <option value="Post">Post</option>
+                <option value="Reel / Video">Reel / Video</option>
+                <option value="Paid Advertisement">Paid Advertisement</option>
+                <option value="Story">Story</option>
+                <option value="Direct Message">Direct Message</option>
+                <option value="Call">Call</option>
+                <option value="Organic">Organic</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>Campaign / Post Name <span class="field-optional">(Optional)</span></label>
+            <input type="text" id="campaignName" placeholder="e.g. Instagram Reel - October Offer">
 
 
             <label>Assign To Staff</label>

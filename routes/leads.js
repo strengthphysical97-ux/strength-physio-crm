@@ -22,6 +22,8 @@ router.post("/", authMiddleware, async (req, res) => {
       ...(String(req.body.email || "").trim() ? { email: String(req.body.email).trim() } : {}),
       product: req.body.product,
       source: req.body.source,
+      sourceType: req.body.sourceType || "",
+      campaignName: req.body.campaignName || "",
       status: req.body.status,
       followUpDate: req.body.followUpDate,
       notes: req.body.notes,
@@ -78,6 +80,8 @@ router.put("/:id", authMiddleware, async (req, res) => {
       ...(String(req.body.email || "").trim() ? { email: String(req.body.email).trim() } : {}),
       product: req.body.product,
       source: req.body.source,
+      sourceType: req.body.sourceType || "",
+      campaignName: req.body.campaignName || "",
       status: req.body.status,
       followUpDate: req.body.followUpDate,
       notes: req.body.notes
