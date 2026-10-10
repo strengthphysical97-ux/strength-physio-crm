@@ -1315,6 +1315,11 @@ populateStaffSelect("assignedTo");
 const orderForm = document.getElementById("orderForm");
 
 if (orderForm) {
+    const initialPaymentDate = document.getElementById("paymentDate");
+    if (initialPaymentDate && !initialPaymentDate.value) {
+        const today = new Date();
+        initialPaymentDate.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    }
 
     setupOrderPaymentFields();
 
@@ -1344,6 +1349,7 @@ if (orderForm) {
             gstPercent: Number(document.getElementById("gstPercent").value || 0),
             paymentStatus: document.getElementById("paymentStatus").value,
             amountPaid: Number(document.getElementById("amountPaid").value || 0),
+            paymentDate: document.getElementById("paymentDate")?.value || "",
             source: document.getElementById("source")?.value || "Other",
             sourceType: document.getElementById("sourceType")?.value || "",
             campaignName: document.getElementById("campaignName")?.value || "",
@@ -1381,6 +1387,11 @@ if (orderForm) {
                     "Order added successfully!";
 
                 orderForm.reset();
+                const resetPaymentDate = document.getElementById("paymentDate");
+                if (resetPaymentDate) {
+                    const today = new Date();
+                    resetPaymentDate.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+                }
 
             } else {
 

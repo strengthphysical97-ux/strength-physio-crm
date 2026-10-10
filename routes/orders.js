@@ -58,7 +58,17 @@ router.post("/", authMiddleware, async (req, res) => {
             gstPercent,
             gstAmount,
             amountPaid,
-            payments: amountPaid > 0 ? [{ amount: amountPaid, method: req.body.paymentMethod || "", date: req.body.paymentDate || new Date(), note: "Initial payment" }] : [],
+            payments: amountPaid > 0 ? [{
+                amount: amountPaid,
+                method: req.body.paymentMethod || "",
+                date: (() => {
+                    const dateText = String(req.body.paymentDate || "").trim();
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateText)) return new Date();
+                    const parsed = new Date(`${dateText}T12:00:00`);
+                    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+                })(),
+                note: "Initial payment"
+            }] : [],
             createdBy: req.user.userId,
             assignedTo,
             assignedAt: new Date()
