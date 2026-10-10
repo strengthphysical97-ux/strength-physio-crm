@@ -69,15 +69,23 @@
         <input type="number" id="totalAmount" min="0" step="0.01" required readonly>
 
         <label>Payment Status</label>
-        <select id="paymentStatus">
+        <select id="paymentStatus" disabled>
             <option value="Pending">Pending</option>
             <option value="Partial">Partial</option>
             <option value="Paid">Paid</option>
         </select>
 
-        <label>Amount Paid (Total Paid So Far)</label>
-        <input type="number" id="amountPaid" min="0" value="0" step="0.01" required>
-        <p id="paymentPendingInfo" class="muted-block">Pending amount will update automatically from Total Amount minus Amount Paid.</p>
+        <div class="payment-summary" style="border:1px solid #ddd;border-radius:8px;padding:12px;margin:10px 0">
+            <p><strong>Previous payment received:</strong> ₹<span id="previousPaidDisplay">0.00</span></p>
+            <label for="additionalPayment">New payment receiving now (₹)</label>
+            <input type="text" id="additionalPayment" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" value="0" autocomplete="off" placeholder="Enter amount using keyboard">
+            <p><strong>Total paid after this payment:</strong> ₹<span id="totalPaidDisplay">0.00</span></p>
+            <p><strong>Pending amount:</strong> ₹<span id="pendingAmountDisplay">0.00</span></p>
+            <input type="hidden" id="previousAmountPaid" value="0">
+            <input type="hidden" id="amountPaid" value="0">
+        </div>
+        <p id="paymentPendingInfo" class="muted-block">Enter only the new amount being received now. Previous payments are kept automatically.</p>
+        <div id="paymentHistoryList" style="margin:8px 0 16px"></div>
         <div id="customerHistoryPanel" style="margin:8px 0 16px"></div>
 <label>Order Status</label>
 

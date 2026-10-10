@@ -1242,34 +1242,67 @@ function setupOrderPaymentFields() {
     const paymentStatus = document.getElementById("paymentStatus");
     const amountPaid = document.getElementById("amountPaid");
     if (!total || !qty || !price || !delivery || !gstEnabled || !gstPercent || !paymentStatus || !amountPaid) return;
+    const editMode = !!document.getElementById("editOrderForm");
+    const previousPaidInput = document.getElementById("previousAmountPaid");
+    const additionalPaymentInput = document.getElementById("additionalPayment");
+
+    function updateEditPaymentSummary() {
+        if (!editMode || !additionalPaymentInput || !previousPaidInput) return;
+        const previousPaid = Math.max(0, Number(previousPaidInput.value || 0));
+        const newPayment = Math.max(0, Number(additionalPaymentInput.value || 0));
+        const currentTotal = Math.max(0, Number(total.value || 0));
+        const totalPaid = previousPaid + newPayment;
+        const pending = Math.max(0, currentTotal - totalPaid);
+        amountPaid.value = totalPaid.toFixed(2);
+        document.getElementById("previousPaidDisplay").textContent = previousPaid.toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById("totalPaidDisplay").textContent = totalPaid.toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById("pendingAmountDisplay").textContent = pending.toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        paymentStatus.value = totalPaid <= 0 ? "Pending" : totalPaid >= currentTotal ? "Paid" : "Partial";
+        additionalPaymentInput.max = Math.max(0, currentTotal - previousPaid).toFixed(2);
+        const allowedNow = Math.max(0, currentTotal - previousPaid);
+        document.getElementById("paymentPendingInfo").textContent = newPayment > allowedNow
+            ? `Payment is too high. Maximum additional payment allowed is ₹${allowedNow.toLocaleString("en-IN", {maximumFractionDigits: 2})}.`
+            : `Previous paid: ₹${previousPaid.toLocaleString("en-IN")} · Paying now: ₹${newPayment.toLocaleString("en-IN")} · Balance after payment: ₹${pending.toLocaleString("en-IN")}`;
+    }
 
     function recalculate() {
         const base = Math.max(0, Number(qty.value || 0) * Number(price.value || 0));
         const deliveryAmount = Math.max(0, Number(delivery.value || 0));
         const gst = gstEnabled.checked ? base * Math.max(0, Number(gstPercent.value || 0)) / 100 : 0;
         total.value = (base + deliveryAmount + gst).toFixed(2);
-        if (!document.getElementById("editOrderForm")) {
+        if (!editMode) {
             gstPercent.disabled = !gstEnabled.checked;
             if (paymentStatus.value === "Paid") amountPaid.value = total.value;
             if (paymentStatus.value === "Pending") amountPaid.value = "0";
+            amountPaid.max = total.value;
+        } else {
+            updateEditPaymentSummary();
         }
-        amountPaid.max = total.value;
     }
 
     [qty, price, delivery, gstPercent].forEach(el => el.addEventListener("input", recalculate));
     gstEnabled.addEventListener("change", recalculate);
-    paymentStatus.addEventListener("change", () => {
-        if (paymentStatus.value === "Paid") amountPaid.value = total.value || 0;
-        else if (paymentStatus.value === "Pending") amountPaid.value = 0;
-        amountPaid.max = total.value || 0;
-    });
-    amountPaid.addEventListener("input", () => {
-        const paid = Number(amountPaid.value || 0);
-        const t = Number(total.value || 0);
-        if (paid <= 0) paymentStatus.value = "Pending";
-        else if (paid >= t) paymentStatus.value = "Paid";
-        else paymentStatus.value = "Partial";
-    });
+    if (editMode && additionalPaymentInput) {
+        additionalPaymentInput.addEventListener("input", updateEditPaymentSummary);
+        additionalPaymentInput.addEventListener("blur", () => {
+            const value = additionalPaymentInput.value.trim();
+            if (value === "") additionalPaymentInput.value = "0";
+            updateEditPaymentSummary();
+        });
+    } else {
+        paymentStatus.addEventListener("change", () => {
+            if (paymentStatus.value === "Paid") amountPaid.value = total.value || 0;
+            else if (paymentStatus.value === "Pending") amountPaid.value = 0;
+            amountPaid.max = total.value || 0;
+        });
+        amountPaid.addEventListener("input", () => {
+            const paid = Number(amountPaid.value || 0);
+            const t = Number(total.value || 0);
+            if (paid <= 0) paymentStatus.value = "Pending";
+            else if (paid >= t) paymentStatus.value = "Paid";
+            else paymentStatus.value = "Partial";
+        });
+    }
     recalculate();
 }
 
@@ -1571,6 +1604,14 @@ if (editOrderForm) {
 
             e.preventDefault();
 
+            const previousPaid = Number(document.getElementById("previousAmountPaid")?.value || 0);
+            const additionalPayment = Number(document.getElementById("additionalPayment")?.value || 0);
+            const revisedTotal = Number(document.getElementById("totalAmount").value || 0);
+            if (!Number.isFinite(additionalPayment) || additionalPayment < 0 || additionalPayment > Math.max(0, revisedTotal - previousPaid) + 0.001) {
+                document.getElementById("message").innerText = "Please enter a valid new payment amount. It cannot be more than the pending amount.";
+                return;
+            }
+
             const updatedData = {
 
                 customer: document.getElementById("customer").value,
@@ -1722,8 +1763,17 @@ async function loadOrderForEdit(id) {
         document.getElementById("gstEnabled").disabled = true;
         document.getElementById("gstPercent").disabled = true;
         document.getElementById("totalAmount").value = order.totalAmount || 0;
-        document.getElementById("amountPaid").value = order.amountPaid || 0;
+        document.getElementById("previousAmountPaid").value = Number(order.amountPaid || 0);
+        document.getElementById("additionalPayment").value = "0";
+        document.getElementById("amountPaid").value = Number(order.amountPaid || 0);
         document.getElementById("paymentStatus").value = order.paymentStatus || "Pending";
+        const paymentHistoryList = document.getElementById("paymentHistoryList");
+        if (paymentHistoryList) {
+            const history = Array.isArray(order.payments) ? order.payments : [];
+            paymentHistoryList.innerHTML = `<strong>Previous payment history</strong>` + (history.length
+                ? `<ul>${history.map(p => `<li>${new Date(p.date || order.createdAt).toLocaleDateString("en-IN")} — ₹${Number(p.amount || 0).toLocaleString("en-IN")} ${p.method ? `(${p.method})` : ""} ${p.note ? `- ${p.note}` : ""}</li>`).join("")}</ul>`
+                : (Number(order.amountPaid || 0) > 0 ? `<p>Previously received: ₹${Number(order.amountPaid).toLocaleString("en-IN")} (individual history not available for this older order).</p>` : `<p>No previous payments recorded.</p>`));
+        }
         if (document.getElementById("source")) document.getElementById("source").value = order.source || "Other";
         if (document.getElementById("sourceType")) document.getElementById("sourceType").value = order.sourceType || "";
         if (document.getElementById("campaignName")) document.getElementById("campaignName").value = order.campaignName || "";
@@ -1732,6 +1782,7 @@ async function loadOrderForEdit(id) {
         const recalcLockedGst = () => { const gst = order.gstEnabled ? base * Number(order.gstPercent || 0) / 100 : 0; document.getElementById("totalAmount").value = (Number(document.getElementById("quantity").value || 1) * Number(document.getElementById("price").value || 0) + Number(delivery.value || 0) + (order.gstEnabled ? Number(document.getElementById("quantity").value || 1) * Number(document.getElementById("price").value || 0) * Number(order.gstPercent || 0) / 100 : 0)).toFixed(2); };
         [document.getElementById("quantity"), document.getElementById("price"), delivery].forEach(el => el.addEventListener("input", recalcLockedGst));
         recalcLockedGst();
+        document.getElementById("additionalPayment")?.dispatchEvent(new Event("input"));
         const historyPanel = document.getElementById("customerHistoryPanel");
         if (historyPanel && order.customer?._id) { historyPanel.innerHTML = `<a href="customer-history.html?id=${order.customer._id}" target="_blank">📊 View full customer payment & purchase history</a>`; }
 
