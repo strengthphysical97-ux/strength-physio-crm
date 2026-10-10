@@ -127,7 +127,9 @@ router.put("/:id", authMiddleware, async (req, res) => {
         delete update.payments;
         const oldPaid = Number(existing.amountPaid || 0);
         if (amountPaid > oldPaid) {
-            update.$push = { payments: { amount: Number((amountPaid - oldPaid).toFixed(2)), method: req.body.paymentMethod || existing.paymentMethod || "", date: new Date(), note: "Additional payment" } };
+            const requestedPaymentDate = req.body.newPaymentDate ? new Date(`${req.body.newPaymentDate}T12:00:00`) : new Date();
+            const paymentDate = Number.isNaN(requestedPaymentDate.getTime()) ? new Date() : requestedPaymentDate;
+            update.$push = { payments: { amount: Number((amountPaid - oldPaid).toFixed(2)), method: req.body.paymentMethod || existing.paymentMethod || "", date: paymentDate, note: "Additional payment" } };
         }
         if (req.user.role === "admin" && req.body.assignedTo !== undefined) {
             const staff = req.body.assignedTo ? await User.findOne({ _id: req.body.assignedTo, role: "staff" }) : null;

@@ -1632,6 +1632,7 @@ if (editOrderForm) {
                 gstPercent: Number(document.getElementById("gstPercent").value || 0),
                 paymentStatus: document.getElementById("paymentStatus").value,
                 amountPaid: Number(document.getElementById("amountPaid").value || 0),
+                newPaymentDate: document.getElementById("newPaymentDate")?.value || "",
                 source: document.getElementById("source")?.value || "Other",
                 sourceType: document.getElementById("sourceType")?.value || "",
                 campaignName: document.getElementById("campaignName")?.value || "",
@@ -1765,6 +1766,11 @@ async function loadOrderForEdit(id) {
         document.getElementById("totalAmount").value = order.totalAmount || 0;
         document.getElementById("previousAmountPaid").value = Number(order.amountPaid || 0);
         document.getElementById("additionalPayment").value = "0";
+        const newPaymentDateInput = document.getElementById("newPaymentDate");
+        if (newPaymentDateInput) {
+            const now = new Date();
+            newPaymentDateInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+        }
         document.getElementById("amountPaid").value = Number(order.amountPaid || 0);
         document.getElementById("paymentStatus").value = order.paymentStatus || "Pending";
         const paymentHistoryList = document.getElementById("paymentHistoryList");
